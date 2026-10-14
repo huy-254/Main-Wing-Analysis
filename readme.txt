@@ -1,1 +1,0 @@
-Ban sao duoc tao truoc khi cat bo phan canh ghep noi voi than va booms
