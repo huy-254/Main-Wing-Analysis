@@ -1,0 +1,5 @@
+# File autosave cua MATLAB
+*.asv
+
+# Ban sao lam viec
+main_CW copy.m
