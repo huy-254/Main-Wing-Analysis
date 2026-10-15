@@ -7,7 +7,7 @@ mirror = @(p) [fliplr(p(2:end)) p]; % [trai | phai], dung chung nut y = 0
 
 y_full = [-fliplr(y_coord(2:end)) y_coord];
 c_full = mirror(c_length(:)');
-x_LE_full = mirror(x_coord(:)');
+x_LE_full = mirror(x_LE(:)');
 x_E_full = mirror(x_E(:)');
 xc_full = mirror(xc_airfoil(:)');
 EI_full = mirror(EI(:)');
@@ -93,7 +93,7 @@ Vf = V_all(:,1:modeNumber_f);
 % Force matrix
 % Bo phan luc lien ket ra khoi F_shear, M_t: o mo hinh toan canh phan luc
 % do cac goi tai +-fix_loc tu sinh ra.
-idx_fix = round(fix_loc/dy);
+idx_fix = round(fix_loc/dy+1);
 F_shear_ext = F_shear;
 F_shear_ext(1:idx_fix) = F_shear_ext(1:idx_fix)-F_react;
 M_t_ext = M_t;

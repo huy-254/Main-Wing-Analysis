@@ -23,14 +23,14 @@ dy = 0.02;
 y_coord = 0:dy:8.0;
 n = length(y_coord);
 c_length = zeros(n,1);
-x_coord = zeros(n,1); % x_cooord of leading edge
+x_LE = zeros(n,1); % x_cooord of leading edge
 for i=1:n
    if y_coord(i)<1.75
        c_length(i) = 0.8;
-       x_coord(i) = 0.8;
+       x_LE(i) = 0.8;
    else
        c_length(i) = 0.8*(1-(y_coord(i)-1.750)/6.250) + 0.4*(y_coord(i)-1.750)/6.250;
-       x_coord(i) = -0.08*(y_coord(i)-1.750)/6.250 + 0.8;
+       x_LE(i) = -0.08*(y_coord(i)-1.750)/6.250 + 0.8;
    end
 end
 
@@ -62,16 +62,16 @@ end
 % % vi tri dam truoc va dam sau
 % for i = 1:length(y_coord)
 %     if y_coord(i) < 1.75
-%         x_spar_1(i) = x_coord(i) - 0.2*c_length(i) - 0.020/2;
+%         x_spar_1(i) = x_LE(i) - 0.2*c_length(i) - 0.020/2;
 %     else
-%         x_spar_1(i) = x_coord(i) - 0.2*c_length(i) - 0.034/2;
+%         x_spar_1(i) = x_LE(i) - 0.2*c_length(i) - 0.034/2;
 %     end
 % end
-% x_spar_2 = x_coord - 0.75*c_length + 0.017/2;
+% x_spar_2 = x_LE - 0.75*c_length + 0.017/2;
 % 
 % % Plot hinh dang canh
-% plot(y_coord, x_coord, 'b-', 'LineWidth', 2);
-% x_trailing_edge = x_coord - c_length;
+% plot(y_coord, x_LE, 'b-', 'LineWidth', 2);
+% x_trailing_edge = x_LE - c_length;
 % hold on;
 % plot(y_coord, x_trailing_edge, 'b-', 'LineWidth', 2);
 % plot(y_coord, x_spar_1, 'r--', 'LineWidth', 1.5);
@@ -137,6 +137,15 @@ spar_2_up_0 = zeros(n,1);
 spar_2_low_0 = zeros(n,1);
 x_spar_1_0 = zeros(n,1);
 x_spar_2_0 = zeros(n,1);
+
+eq_strain_u_skin = zeros(n,1);
+eq_strain_l_skin = zeros(n,1);
+eq_strain_u_skin_reinf = zeros(n,1);
+eq_strain_l_skin_reinf = zeros(n,1);
+eq_strain_u_cap_1 = zeros(n,1);
+eq_strain_l_cap_1 = zeros(n,1);
+eq_strain_u_cap_2 = zeros(n,1);
+eq_strain_l_cap_2 = zeros(n,1);
 
 % phan canh giao voi than va boom
 w_fuselage = 650e-3;

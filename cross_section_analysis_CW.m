@@ -273,48 +273,58 @@ up = interp1(upper_point(:,1),upper_point(:,2),0:.01:1); % upper-point interpola
 lp = interp1(lower_point(:,1),lower_point(:,2),0:.01:1); % lower-point interpolation
 elem_length_u = sqrt((up(2:end)-up(1:end-1)).^2+.01^2); % length of upper elements
 elem_length_l = sqrt((lp(2:end)-lp(1:end-1)).^2+.01^2); % length of lower elements
+
 % Front spar
 slope_u_1 = atan((up(round(x_spar_1/.01)+1)-up(round(x_spar_1/.01)))/.01); % slope of the airfoil's upper surface
-slope_l_1 = atan((lp(round(x_spar_1/.01)+1)-lp(round(x_spar_1/.01)))/.01); % slope of the airfoil's lower surfaceif reinf == 0
+slope_l_1 = atan((lp(round(x_spar_1/.01)+1)-lp(round(x_spar_1/.01)))/.01); % slope of the airfoil's lower surface
+z_airfoil_u_1 = interp1(0:.01:1,up,x_spar_1);
+z_airfoil_l_1 = interp1(0:.01:1,lp,x_spar_1);
 if reinf == 0
-    spar_1_up = interp1(0:.01:1,up,x_spar_1)-t_cap_1_u/cos(slope_u_1)-t_skin/cos(slope_u_1); % upper end of the front spar (z location)
-    spar_1_low = interp1(0:.01:1,lp,x_spar_1)+t_cap_1_l/cos(slope_l_1)+t_skin/cos(slope_l_1); % lower end of the front spar (z location)
+    spar_1_up = z_airfoil_u_1-t_skin/cos(slope_u_1); % upper end of the front spar (z location)
+    spar_1_low = z_airfoil_l_1+t_skin/cos(slope_l_1); % lower end of the front spar (z location)
+
+    foam_1_up = z_airfoil_u_1-t_cap_1_u/cos(slope_u_1)-t_skin/cos(slope_u_1); % upper end of the front foam (z location)
+    foam_1_low = z_airfoil_l_1+t_cap_1_l/cos(slope_l_1)+t_skin/cos(slope_l_1); % lower end of the front foam (z location)
 else
-    spar_1_up = interp1(0:.01:1,up,x_spar_1)-t_cap_1_u/cos(slope_u_1)-t_skin_reinf/cos(slope_u_1); % upper end of the front spar (z location)
-    spar_1_low = interp1(0:.01:1,lp,x_spar_1)+t_cap_1_l/cos(slope_l_1)+t_skin_reinf/cos(slope_l_1); % lower end of the front spar (z location)
+    spar_1_up = z_airfoil_u_1-t_skin_reinf/cos(slope_u_1); % upper end of the front spar (z location)
+    spar_1_low = z_airfoil_l_1+t_skin_reinf/cos(slope_l_1); % lower end of the front spar (z location)
+
+    foam_1_up = z_airfoil_u_1-t_cap_1_u/cos(slope_u_1)-t_skin_reinf/cos(slope_u_1); % upper end of the front foam (z location)
+    foam_1_low = z_airfoil_l_1+t_cap_1_l/cos(slope_l_1)+t_skin_reinf/cos(slope_l_1); % lower end of the front foam (z location)
 end
 
-h_spar_1 = spar_1_up-spar_1_low + t_cap_1_u/cos(slope_u_1) + t_cap_1_l/cos(slope_l_1); % front spar height
-h_foam_1 = spar_1_up-spar_1_low; % front spar foam height
+h_spar_1 = spar_1_up-spar_1_low; % front spar height
+h_foam_1 = foam_1_up-foam_1_low; % front spar foam height
 
 % Aft spar
 slope_u_2 = atan((up(round(x_spar_2/.01)+1)-up(round(x_spar_2/.01)))/.01); % slope of the airfoil's upper surface
-slope_l_2 = atan((lp(round(x_spar_2/.01)+1)-lp(round(x_spar_2/.01)))/.01); % slope of the airfoil's upper surface
+slope_l_2 = atan((lp(round(x_spar_2/.01)+1)-lp(round(x_spar_2/.01)))/.01); % slope of the airfoil's lower surface
+z_airfoil_u_2 = interp1(0:.01:1,up,x_spar_2);
+z_airfoil_l_2 = interp1(0:.01:1,lp,x_spar_2);
 if reinf == 0
-    spar_2_up = interp1(0:.01:1,up,x_spar_2)-t_cap_2_u/cos(slope_u_2)-t_skin/cos(slope_u_2); % upper end of the front spar (z location)
-    spar_2_low = interp1(0:.01:1,lp,x_spar_2) + t_cap_2_l/cos(slope_l_2)+t_skin/cos(slope_l_2); % lower end of the front spar (z location)
+    spar_2_up =  z_airfoil_u_2 - t_skin/cos(slope_u_2); % upper end of the aft spar (z location)
+    spar_2_low = z_airfoil_l_2 + t_skin/cos(slope_l_2); % lower end of the aft spar (z location)
+
+    foam_2_up = z_airfoil_u_2 - t_cap_2_u/cos(slope_u_2)-t_skin/cos(slope_u_2);
+    foam_2_low = z_airfoil_l_2 + t_cap_2_l/cos(slope_l_2)+t_skin/cos(slope_l_2);
 else
-    spar_2_up = interp1(0:.01:1,up,x_spar_2)-t_cap_2_u/cos(slope_u_2)-t_skin_reinf/cos(slope_u_2); % upper end of the front spar (z location)
-    spar_2_low = interp1(0:.01:1,lp,x_spar_2) + t_cap_2_l/cos(slope_l_2)+t_skin_reinf/cos(slope_l_2); % lower end of the front spar (z location)
+    spar_2_up = z_airfoil_u_2 - t_skin_reinf/cos(slope_u_2); % upper end of the aft spar (z location)
+    spar_2_low = z_airfoil_l_2 + t_skin_reinf/cos(slope_l_2); % lower end of the aft spar (z location)
+
+    foam_2_up = z_airfoil_u_2 - t_cap_2_u/cos(slope_u_2)-t_skin_reinf/cos(slope_u_2);
+    foam_2_low = z_airfoil_l_2 + t_cap_2_l/cos(slope_l_2)+t_skin_reinf/cos(slope_l_2);
 end
 
-h_spar_2 = spar_2_up-spar_2_low + t_cap_2_u/cos(slope_u_2) + t_cap_2_l/cos(slope_l_2); % aft spar height
-h_foam_2 = spar_2_up-spar_2_low; % aft spar foam height
+h_spar_2 = spar_2_up-spar_2_low; % aft spar height
+h_foam_2 = foam_2_up-foam_2_low; % aft spar foam height
 
 % mass per unit length (kg/m)
 n_rib = 1/(rib_spacing*scale);
-% Rib: hinh thang giua 2 dam, chieu cao tai moi dam keo dai qua side cap tren va duoi
-% h_rib_1 = h_spar_1 + t_cap_1_u/cos(slope_u_1) + t_cap_1_l/cos(slope_l_1); % rib height at front spar (fraction of chord length)
-% h_rib_2 = h_spar_2 + t_cap_2_u/cos(slope_u_2) + t_cap_2_l/cos(slope_l_2); % rib height at aft spar (fraction of chord length)
-
-h_rib_1 = h_spar_1;
-h_rib_2 = h_spar_2;
-
 
 m_airfoil(ii) = (sum(rho_skin.*t_layer_skin)*(sum(elem_length_u)+sum(elem_length_l)) +... 
     sum(rho_spar_1.*t_layer_spar_1)*h_spar_1 - rho_core*core_thickness_spar_1*(h_spar_1-h_foam_1) +...
     sum(rho_spar_2.*t_layer_spar_2)*h_spar_2 - rho_core*core_thickness_spar_2*(h_spar_2-h_foam_2) +...
-    sum(rho_rib.*t_layer_rib)*(h_rib_1+h_rib_2)/2*(x_spar_2-x_spar_1)*scale*n_rib +...
+    sum(rho_rib.*t_layer_rib)*(h_spar_1+h_spar_2)/2*(x_spar_2-x_spar_1)*scale*n_rib +...
     sum(rho_cap_1_u.*t_layer_cap_1_u)*d_cap_1+...
     sum(rho_cap_1_l.*t_layer_cap_1_l)*d_cap_1+...
     sum(rho_cap_2_u.*t_layer_cap_2_u)*d_cap_2+...
@@ -335,7 +345,7 @@ xc_spar_1 = (sum(rho_spar_1.*t_layer_spar_1)*h_spar_1 - rho_core*core_thickness_
     
 xc_spar_2 = (sum(rho_spar_2.*t_layer_spar_2)*h_spar_2 - rho_core*core_thickness_spar_2*(h_spar_2-h_foam_2))*x_spar_2*scale/m_airfoil(ii); 
     
-xc_rib = (sum(rho_rib.*t_layer_rib)/sum(t_layer_rib)*t_rib*(h_rib_1+h_rib_2)/2*(x_spar_2-x_spar_1)*(x_spar_1+x_spar_2)/2*scale*n_rib)*scale^2/m_airfoil(ii); 
+xc_rib = (sum(rho_rib.*t_layer_rib)/sum(t_layer_rib)*t_rib*(h_spar_1+h_spar_2)/2*(x_spar_2-x_spar_1)*(x_spar_1+x_spar_2)/2*scale*n_rib)*scale^2/m_airfoil(ii); 
     
 xc_cap_1_u = (sum(rho_cap_1_u.*t_layer_cap_1_u)/sum(t_layer_cap_1_u)*t_cap_1_u*d_cap_1*x_spar_1)*scale^2/m_airfoil(ii); 
     
@@ -357,22 +367,22 @@ end
 
 %% Composite properties (Gibson Chap. 7)
 % Front spar
-[A_lam_1, D_lam_1] = laminate(E1_layer_spar_1,E2_layer_spar_1,theta_layer_spar_1,t_layer_spar_1,...
+[A_lam_spar_1, ~] = laminate(E1_layer_spar_1,E2_layer_spar_1,theta_layer_spar_1,t_layer_spar_1,...
     G12_layer_spar_1,nju_layer_spar_1,0); 
-Q_lam_1 = A_lam_1/(t_spar_1*scale);
-S_lam_1 = inv(Q_lam_1);
-Ex1 = 1/S_lam_1(1,1); % Gibson Eq. 2.25
-Ez1 = 1/S_lam_1(2,2);
-G1 = 1/S_lam_1(3,3);
+Q_lam_spar_1 = A_lam_spar_1/(t_spar_1*scale);
+S_lam_spar_1 = inv(Q_lam_spar_1);
+Ex_spar_1 = 1/S_lam_spar_1(1,1); % Gibson Eq. 2.25
+Ez_spar_1 = 1/S_lam_spar_1(2,2);
+G_spar_1 = 1/S_lam_spar_1(3,3);
 
 % Aft spar
-[A_lam_2, D_lam_2] = laminate(E1_layer_spar_2,E2_layer_spar_2,theta_layer_spar_2,t_layer_spar_2,...
+[A_lam_spar_2, ~] = laminate(E1_layer_spar_2,E2_layer_spar_2,theta_layer_spar_2,t_layer_spar_2,...
     G12_layer_spar_2,nju_layer_spar_2,0); 
-Q_lam_2 = A_lam_2/(t_spar_2*scale);
-S_lam_2 = inv(Q_lam_2);
-Ex2 = 1/S_lam_2(1,1); % Gibson Eq. 2.25
-Ez2 = 1/S_lam_2(2,2);
-G2 = 1/S_lam_2(3,3);
+Q_lam_spar_2 = A_lam_spar_2/(t_spar_2*scale);
+S_lam_spar_2 = inv(Q_lam_spar_2);
+Ex_spar_2 = 1/S_lam_spar_2(1,1); % Gibson Eq. 2.25
+Ez_spar_2 = 1/S_lam_spar_2(2,2);
+G_spar_2 = 1/S_lam_spar_2(3,3);
 
 % Skin
 [A_lam_skin, D_lam_skin] = laminate(E1_layer_skin,E2_layer_skin,theta_layer_skin,t_layer_skin,...
@@ -404,22 +414,21 @@ Ez_rib = 1/S_lam_rib(2,2);
 G_rib = 1/S_lam_rib(3,3);
 
 % Spar cap 1
-[A_lam_cap_1, ~] = laminate(E1_layer_cap_1_u,E2_layer_cap_1_u,theta_layer_cap_1_u,t_layer_cap_1_u,...
+[A_lam_cap_1_u, ~] = laminate(E1_layer_cap_1_u,E2_layer_cap_1_u,theta_layer_cap_1_u,t_layer_cap_1_u,...
     G12_layer_cap_1_u,nju_layer_cap_1_u,0); 
-Q_lam_cap_1 = A_lam_cap_1/(t_cap_1_u*scale);
-S_lam_cap_1 = inv(Q_lam_cap_1);
-Ex_cap_1_u = 1/S_lam_cap_1(1,1); % Gibson Eq. 2.25
-Ey_cap_1_u = 1/S_lam_cap_1(2,2);
-G_cap_1_u = 1/S_lam_cap_1(3,3);
+Q_lam_cap_1_u = A_lam_cap_1_u/(t_cap_1_u*scale);
+S_lam_cap_1_u = inv(Q_lam_cap_1_u);
+Ex_cap_1_u = 1/S_lam_cap_1_u(1,1); % Gibson Eq. 2.25
+% Ey_cap_1_u = 1/S_lam_cap_1_u(2,2);
+% G_cap_1_u = 1/S_lam_cap_1_u(3,3);
 
-[A_lam_cap_1, ~] = laminate(E1_layer_cap_1_l,E2_layer_cap_1_l,theta_layer_cap_1_l,t_layer_cap_1_l,...
+[A_lam_cap_1_l, ~] = laminate(E1_layer_cap_1_l,E2_layer_cap_1_l,theta_layer_cap_1_l,t_layer_cap_1_l,...
     G12_layer_cap_1_l,nju_layer_cap_1_l,0); 
-Q_lam_cap_1 = A_lam_cap_1/(t_cap_1_l*scale);
-S_lam_cap_1 = inv(Q_lam_cap_1);
-Ex_cap_1_l = 1/S_lam_cap_1(1,1); % Gibson Eq. 2.25
-Ey_cap_1_l = 1/S_lam_cap_1(2,2);
-G_cap_1_l = 1/S_lam_cap_1(3,3);
-
+Q_lam_cap_1_l = A_lam_cap_1_l/(t_cap_1_l*scale);
+S_lam_cap_1_l = inv(Q_lam_cap_1_l);
+Ex_cap_1_l = 1/S_lam_cap_1_l(1,1); % Gibson Eq. 2.25
+% Ey_cap_1_l = 1/S_lam_cap_1_l(2,2);
+% G_cap_1_l = 1/S_lam_cap_1_l(3,3);
 
 % h1_u = ((h_spar_1-t_cap_1_u/2/cos(slope_u_1)-t_cap_1_l/2/cos(slope_l_1))*sqrt(Ex_cap_1_l*t_cap_1_l)/...
 %     (sqrt(Ex_cap_1_u*t_cap_1_u)+sqrt(Ex_cap_1_l*t_cap_1_l)))*scale;
@@ -427,21 +436,21 @@ G_cap_1_l = 1/S_lam_cap_1(3,3);
 %     (sqrt(Ex_cap_1_u*t_cap_1_u)+sqrt(Ex_cap_1_l*t_cap_1_l)))*scale;
 
 % Spar cap 2
-[A_lam_cap_2, ~] = laminate(E1_layer_cap_2_u,E2_layer_cap_2_u,theta_layer_cap_2_u,t_layer_cap_2_u,...
+[A_lam_cap_2_u, ~] = laminate(E1_layer_cap_2_u,E2_layer_cap_2_u,theta_layer_cap_2_u,t_layer_cap_2_u,...
     G12_layer_cap_2_u,nju_layer_cap_2_u,0); 
-Q_lam_cap_2 = A_lam_cap_2/(t_cap_2_u*scale);
-S_lam_cap_2 = inv(Q_lam_cap_2);
-Ex_cap_2_u = 1/S_lam_cap_2(1,1); % Gibson Eq. 2.25
-Ey_cap_2_u = 1/S_lam_cap_2(2,2);
-G_cap_2_u = 1/S_lam_cap_2(3,3);
+Q_lam_cap_2_u = A_lam_cap_2_u/(t_cap_2_u*scale);
+S_lam_cap_2_u = inv(Q_lam_cap_2_u);
+Ex_cap_2_u = 1/S_lam_cap_2_u(1,1); % Gibson Eq. 2.25
+% Ey_cap_2_u = 1/S_lam_cap_2_u(2,2);
+% G_cap_2_u = 1/S_lam_cap_2_u(3,3);
 
-[A_lam_cap_2, ~] = laminate(E1_layer_cap_2_l,E2_layer_cap_2_l,theta_layer_cap_2_l,t_layer_cap_2_l,...
+[A_lam_cap_2_l, ~] = laminate(E1_layer_cap_2_l,E2_layer_cap_2_l,theta_layer_cap_2_l,t_layer_cap_2_l,...
     G12_layer_cap_2_l,nju_layer_cap_2_l,0); 
-Q_lam_cap_2 = A_lam_cap_2/(t_cap_2_l*scale);
-S_lam_cap_2 = inv(Q_lam_cap_2);
-Ex_cap_2_l = 1/S_lam_cap_2(1,1); % Gibson Eq. 2.25
-Ey_cap_2_l = 1/S_lam_cap_2(2,2);
-G_cap_2_l = 1/S_lam_cap_2(3,3);
+Q_lam_cap_2_l = A_lam_cap_2_l/(t_cap_2_l*scale);
+S_lam_cap_2_l = inv(Q_lam_cap_2_l);
+Ex_cap_2_l = 1/S_lam_cap_2_l(1,1); % Gibson Eq. 2.25
+% Ey_cap_2_l = 1/S_lam_cap_2_l(2,2);
+% G_cap_2_l = 1/S_lam_cap_2_l(3,3);
 
 % h2_u = ((h_spar_2-t_cap_2_u/2/cos(slope_u_2)-t_cap_2_l/2/cos(slope_l_2))*sqrt(Ex_cap_2_l*t_cap_2_l)/...
 %     (sqrt(Ex_cap_2_u*t_cap_2_u)+sqrt(Ex_cap_2_l*t_cap_2_l)))*scale;
@@ -467,20 +476,21 @@ Ey_side_cap_2 = 1/S_lam_side_cap_2(2,2);
 G_side_cap_2 = 1/S_lam_side_cap_2(3,3);
 
 %% Bending
-% z-coordinate of Shear center 
-z_E(ii) = (spar_1_up*Ex_cap_1_u*d_cap_1*t_cap_1_u+spar_1_low*Ex_cap_1_l*d_cap_1*t_cap_1_l+...
-    spar_2_up*Ex_cap_2_u*d_cap_2*t_cap_2_u+spar_2_low*Ex_cap_2_l*d_cap_2*t_cap_2_l)/...
-    (Ex_cap_1_u*d_cap_1*t_cap_1_u+Ex_cap_1_l*d_cap_1*t_cap_1_l+...
-    Ex_cap_2_u*d_cap_2*t_cap_2_u+Ex_cap_2_l*d_cap_2*t_cap_2_l);
-
 % caps
-z_cap_1_u = spar_1_up  + t_cap_1_u/2/cos(slope_u_1);
-z_cap_1_l = spar_1_low - t_cap_1_l/2/cos(slope_l_1);
+z_cap_1_u = spar_1_up  - t_cap_1_u/2/cos(slope_u_1);
+z_cap_1_l = spar_1_low + t_cap_1_l/2/cos(slope_l_1);
+z_cap_2_u = spar_2_up  - t_cap_2_u/2/cos(slope_u_2);
+z_cap_2_l = spar_2_low + t_cap_2_l/2/cos(slope_l_2);
+
+% z-coordinate of truc trung hoa
+z_E(ii) = (z_cap_1_u*Ex_cap_1_u*d_cap_1*t_cap_1_u + z_cap_1_l*Ex_cap_1_l*d_cap_1*t_cap_1_l +...
+    z_cap_2_u*Ex_cap_2_u*d_cap_2*t_cap_2_u + z_cap_2_l*Ex_cap_2_l*d_cap_2*t_cap_2_l)/...
+    (Ex_cap_1_u*d_cap_1*t_cap_1_u + Ex_cap_1_l*d_cap_1*t_cap_1_l+...
+    Ex_cap_2_u*d_cap_2*t_cap_2_u + Ex_cap_2_l*d_cap_2*t_cap_2_l);
+
 h1_u = z_cap_1_u - z_E(ii);
 h1_l = z_E(ii) - z_cap_1_l;
 
-z_cap_2_u = spar_2_up  + t_cap_2_u/2/cos(slope_u_2);
-z_cap_2_l = spar_2_low - t_cap_2_l/2/cos(slope_l_2);
 h2_u = z_cap_2_u - z_E(ii);
 h2_l = z_E(ii) - z_cap_2_l;
 
@@ -492,15 +502,11 @@ I_cap_2_l = t_cap_2_l*d_cap_2*h2_l^2;
 
 %% Tinh moment quan tinh
 if reinf == 1
-    % Front spar
-    I1 = t_spar_1*h_spar_1^3/12+t_spar_1*h_spar_1*(spar_1_up + t_cap_1_u/cos(slope_u_1) - h_spar_1/2-z_E(ii))^2; % area moment of inertia
-    % Aft spar
-    I2 = t_spar_2*h_spar_2^3/12+t_spar_2*h_spar_2*(spar_2_up + t_cap_2_u/cos(slope_u_2) - h_spar_2/2-z_E(ii))^2; % area moment of inertia
-else
-    % Front spar
-    I1 = t_spar_1*h_spar_1^3/12+t_spar_1*h_spar_1*(spar_1_up + t_cap_1_u/cos(slope_u_1) - h_spar_1/2-z_E(ii))^2; % area moment of inertia
-    % Aft spar
-    I2 = t_spar_2*h_spar_2^3/12+t_spar_2*h_spar_2*(spar_2_up + t_cap_2_u/cos(slope_u_2) - h_spar_2/2-z_E(ii))^2; % area moment of inertia    
+    I1 = t_spar_1*h_spar_1^3/12 + t_spar_1*h_spar_1*(spar_1_up - h_spar_1/2 - z_E(ii))^2; % area moment of inertia Front spar
+    I2 = t_spar_2*h_spar_2^3/12 + t_spar_2*h_spar_2*(spar_2_up - h_spar_2/2 - z_E(ii))^2; % area moment of inertia Aft spar
+else 
+    I1 = t_spar_1*h_spar_1^3/12 + t_spar_1*h_spar_1*(spar_1_up - h_spar_1/2 - z_E(ii))^2; % area moment of inertia Front spar
+    I2 = t_spar_2*h_spar_2^3/12 + t_spar_2*h_spar_2*(spar_2_up - h_spar_2/2 - z_E(ii))^2; % area moment of inertia Aft spar   
 end
 
 % Skin
@@ -508,28 +514,28 @@ I_skin = sum((elem_length_u*t_skin).*((up(2:end)+up(1:end-1))/2-z_E(ii)).^2)+...
     sum((elem_length_l*t_skin).*((lp(2:end)+lp(1:end-1))/2-z_E(ii)).^2);
 
 if reinf == 1
-    I_skin = I_skin-((interp1(0:.01:1,up,x_spar_1)-z_E(ii))^2+(interp1(0:.01:1,lp,x_spar_1)-z_E(ii))^2)*2*d_reinf_1*t_skin-...
-        ((interp1(0:.01:1,up,x_spar_2)-z_E(ii))^2+(interp1(0:.01:1,lp,x_spar_2)-z_E(ii))^2)*2*d_reinf_2*t_skin;
-    I_skin_reinf = ((interp1(0:.01:1,up,x_spar_1)-z_E(ii))^2+(interp1(0:.01:1,lp,x_spar_1)-z_E(ii))^2)*2*d_reinf_1*t_skin_reinf+...
-        ((interp1(0:.01:1,up,x_spar_2)-z_E(ii))^2+(interp1(0:.01:1,lp,x_spar_2)-z_E(ii))^2)*2*d_reinf_2*t_skin_reinf;
+    I_skin = I_skin-((z_airfoil_u_1-z_E(ii))^2+(z_airfoil_l_1-z_E(ii))^2)*2*d_reinf_1*t_skin-...
+        ((z_airfoil_u_2-z_E(ii))^2+(z_airfoil_l_2-z_E(ii))^2)*2*d_reinf_2*t_skin;
+    I_skin_reinf = ((z_airfoil_u_1-z_E(ii))^2+(z_airfoil_l_1-z_E(ii))^2)*2*d_reinf_1*t_skin_reinf+...
+        ((z_airfoil_u_2-z_E(ii))^2+(z_airfoil_l_2-z_E(ii))^2)*2*d_reinf_2*t_skin_reinf;
 end
 
 % side caps
-I_side_cap_1_u = t_side_cap_1*d_side_cap_1*(interp1(0:.01:1,up,x_spar_1)-z_E(ii))^2;
-I_side_cap_1_l = t_side_cap_1*d_side_cap_1*(interp1(0:.01:1,lp,x_spar_1)-z_E(ii))^2;
-I_side_cap_2_u = t_side_cap_2*d_side_cap_2*(interp1(0:.01:1,up,x_spar_2)-z_E(ii))^2;
-I_side_cap_2_l = t_side_cap_2*d_side_cap_2*(interp1(0:.01:1,lp,x_spar_2)-z_E(ii))^2;
+I_side_cap_1_u = t_side_cap_1*d_side_cap_1*(z_airfoil_u_1-z_E(ii))^2;
+I_side_cap_1_l = t_side_cap_1*d_side_cap_1*(z_airfoil_l_1-z_E(ii))^2;
+I_side_cap_2_u = t_side_cap_2*d_side_cap_2*(z_airfoil_u_2-z_E(ii))^2;
+I_side_cap_2_l = t_side_cap_2*d_side_cap_2*(z_airfoil_l_2-z_E(ii))^2;
 
 if reinf == 0
     [~, D_lam_cap_1_u] = laminate(E1_layer_cap_1_u,E2_layer_cap_1_u,theta_layer_cap_1_u,t_layer_cap_1_u,...
-        G12_layer_cap_1_u,nju_layer_cap_1_u,(interp1(0:.01:1,up,x_spar_1)-z_E(ii)-(t_skin+t_cap_1_u/2)/cos(slope_u_1))*scale);
+        G12_layer_cap_1_u,nju_layer_cap_1_u,(z_airfoil_u_1-z_E(ii)-(t_skin+t_cap_1_u/2)/cos(slope_u_1))*scale);
     [~, D_lam_cap_1_l] = laminate(E1_layer_cap_1_l,E2_layer_cap_1_l,theta_layer_cap_1_l,t_layer_cap_1_l,...
-        G12_layer_cap_1_l,nju_layer_cap_1_l,(z_E(ii)-interp1(0:.01:1,lp,x_spar_1)-(t_skin+t_cap_1_l/2)/cos(slope_l_1))*scale);
+        G12_layer_cap_1_l,nju_layer_cap_1_l,(z_E(ii)-z_airfoil_l_1-(t_skin+t_cap_1_l/2)/cos(slope_l_1))*scale);
 else
     [~, D_lam_cap_1_u] = laminate(E1_layer_cap_1_u,E2_layer_cap_1_u,theta_layer_cap_1_u,t_layer_cap_1_u,...
-        G12_layer_cap_1_u,nju_layer_cap_1_u,(interp1(0:.01:1,up,x_spar_1)-z_E(ii)-(t_skin_reinf+t_cap_1_u/2)/cos(slope_u_1))*scale);
+        G12_layer_cap_1_u,nju_layer_cap_1_u,(z_airfoil_u_1-z_E(ii)-(t_skin_reinf+t_cap_1_u/2)/cos(slope_u_1))*scale);
     [~, D_lam_cap_1_l] = laminate(E1_layer_cap_1_l,E2_layer_cap_1_l,theta_layer_cap_1_l,t_layer_cap_1_l,...
-        G12_layer_cap_1_l,nju_layer_cap_1_l,(z_E(ii)-interp1(0:.01:1,lp,x_spar_1)-(t_skin_reinf+t_cap_1_l/2)/cos(slope_l_1))*scale);
+        G12_layer_cap_1_l,nju_layer_cap_1_l,(z_E(ii)-z_airfoil_l_1-(t_skin_reinf+t_cap_1_l/2)/cos(slope_l_1))*scale);
 end
 
 M_mat = D_lam_cap_1_u\[1;0;0]; % Gibson Eq. 7.41
@@ -541,14 +547,14 @@ EI_cap_1_l = 1/M_mat(1)*d_cap_1*scale;
 % Spar cap 2 (bending rigidity)
 if reinf == 0
     [~, D_lam_cap_2_u] = laminate(E1_layer_cap_2_u,E2_layer_cap_2_u,theta_layer_cap_2_u,t_layer_cap_2_u,...
-        G12_layer_cap_2_u,nju_layer_cap_2_u,(interp1(0:.01:1,up,x_spar_2)-z_E(ii)-(t_skin+t_cap_2_u/2)/cos(slope_u_2))*scale);
+        G12_layer_cap_2_u,nju_layer_cap_2_u,(z_airfoil_u_2-z_E(ii)-(t_skin+t_cap_2_u/2)/cos(slope_u_2))*scale);
     [~, D_lam_cap_2_l] = laminate(E1_layer_cap_2_l,E2_layer_cap_2_l,theta_layer_cap_2_l,t_layer_cap_2_l,...
-        G12_layer_cap_2_l,nju_layer_cap_2_l,(z_E(ii)-interp1(0:.01:1,lp,x_spar_2)-(t_skin+t_cap_2_l/2)/cos(slope_l_2))*scale);
+        G12_layer_cap_2_l,nju_layer_cap_2_l,(z_E(ii)-z_airfoil_l_2-(t_skin+t_cap_2_l/2)/cos(slope_l_2))*scale);
 else
     [~, D_lam_cap_2_u] = laminate(E1_layer_cap_2_u,E2_layer_cap_2_u,theta_layer_cap_2_u,t_layer_cap_2_u,...
-        G12_layer_cap_2_u,nju_layer_cap_2_u,(interp1(0:.01:1,up,x_spar_2)-z_E(ii)-(t_skin_reinf+t_cap_2_u/2)/cos(slope_u_2))*scale);
+        G12_layer_cap_2_u,nju_layer_cap_2_u,(z_airfoil_u_2-z_E(ii)-(t_skin_reinf+t_cap_2_u/2)/cos(slope_u_2))*scale);
     [~, D_lam_cap_2_l] = laminate(E1_layer_cap_2_l,E2_layer_cap_2_l,theta_layer_cap_2_l,t_layer_cap_2_l,...
-        G12_layer_cap_2_l,nju_layer_cap_2_l,(z_E(ii)-interp1(0:.01:1,lp,x_spar_2)-(t_skin_reinf+t_cap_2_l/2)/cos(slope_l_2))*scale);
+        G12_layer_cap_2_l,nju_layer_cap_2_l,(z_E(ii)-z_airfoil_l_2-(t_skin_reinf+t_cap_2_l/2)/cos(slope_l_2))*scale);
 end
 
 M_mat = D_lam_cap_2_u\[1;0;0]; % Gibson Eq. 7.41
@@ -570,17 +576,17 @@ if ii == length(y_coord)
     M_b(ii) = 0;
 else
     M_b(ii) = sum(F_point.*max(0, (y_point-y_coord(ii)))) -...
-        sum(9.81*0.5*(m_airfoil(ii+1:end)+m_airfoil(ii:end-1)).*(y_coord(ii+1:end)-y_coord(ii)-dy/2))*dy;
+        sum(n_load*9.81*0.5*(m_airfoil(ii+1:end)+m_airfoil(ii:end-1)).*(y_coord(ii+1:end)-y_coord(ii)-dy/2))*dy;
 end
 
-if ii <= round(fix_loc/dy)
-    F_react = -sum(F_point) + 9.81*0.5*sum(m_airfoil(1:end))*dy;
+if ii <= round(fix_loc/dy + 1)
+    F_react = -sum(F_point) + n_load*9.81*0.5*sum(m_airfoil(ii+1:end) + m_airfoil(ii:end-1))*dy;
     M_b(ii) = M_b(ii)+F_react*(fix_loc - y_coord(ii));
 end
 
 %% Mean stress (Chizhov eq. 2.24)
-EI(ii) = (Ex1*I1+EI_cap_1_u/scale^4+EI_cap_1_l/scale^4+Ex_side_cap_1*(I_side_cap_1_u+I_side_cap_1_l)+...
-    Ex2*I2+EI_cap_2_u/scale^4+EI_cap_2_l/scale^4+Ex_side_cap_2*(I_side_cap_2_u+I_side_cap_2_l)+...
+EI(ii) = (Ex_spar_1*I1+EI_cap_1_u/scale^4+EI_cap_1_l/scale^4+Ex_side_cap_1*(I_side_cap_1_u+I_side_cap_1_l)+...
+    Ex_spar_2*I2+EI_cap_2_u/scale^4+EI_cap_2_l/scale^4+Ex_side_cap_2*(I_side_cap_2_u+I_side_cap_2_l)+...
     Ex_skin*I_skin)*scale^4; % bending rigidity
 
 if reinf ==1
@@ -589,7 +595,7 @@ end
 
 % Do cung keo-nen doc truc: tong Ei*Si cua cac chi tiet chiu luc doc truc
 % (dien tich lay giong phan tinh khoi luong, khong ke suon)
-EA(ii) = (Ex1*t_spar_1*h_spar_1+Ex2*t_spar_2*h_spar_2+...
+EA(ii) = (Ex_spar_1*t_spar_1*h_spar_1+Ex_spar_2*t_spar_2*h_spar_2+...
     Ex_cap_1_u*t_cap_1_u*d_cap_1+Ex_cap_1_l*t_cap_1_l*d_cap_1+...
     Ex_cap_2_u*t_cap_2_u*d_cap_2+Ex_cap_2_l*t_cap_2_l*d_cap_2+...
     Ex_side_cap_1*t_side_cap_1*d_side_cap_1*2+Ex_side_cap_2*t_side_cap_2*d_side_cap_2*2+...
@@ -603,35 +609,35 @@ max_sigma_u_skin = bending_curvature*Ex_skin*max(up-z_E(ii)-t_skin/2)*scale; % m
 max_sigma_l_skin = bending_curvature*Ex_skin*min(lp-z_E(ii)+t_skin/2)*scale; % maximum lower stress
 
 if reinf ==1
-    max_sigma_u_skin_reinf = bending_curvature*Ex_skin_reinf*max([interp1(0:.01:1,up,x_spar_1) interp1(0:.01:1,up,x_spar_2)]-z_E(ii))*scale; % maximum upper skin stress
-    max_sigma_l_skin_reinf = bending_curvature*Ex_skin_reinf*min([interp1(0:.01:1,lp,x_spar_1) interp1(0:.01:1,lp,x_spar_2)]-z_E(ii))*scale; % maximum lower stress
+    max_sigma_u_skin_reinf = bending_curvature*Ex_skin_reinf*max([z_airfoil_u_1 z_airfoil_u_2]-z_E(ii))*scale; % maximum upper skin stress
+    max_sigma_l_skin_reinf = bending_curvature*Ex_skin_reinf*min([z_airfoil_l_1 z_airfoil_l_2]-z_E(ii))*scale; % maximum lower stress
 end
 
 
-sigma_u_spar_1 = bending_curvature*Ex1*(spar_1_up+t_cap_1_u-z_E(ii))*scale; % stress at upper end of spar 1
-sigma_l_spar_1 = bending_curvature*Ex1*(spar_1_low+t_cap_1_l-z_E(ii))*scale; % stress at lower end of spar 1
-sigma_u_spar_2 = bending_curvature*Ex2*(spar_2_up+t_cap_2_u-z_E(ii))*scale; % stress at upper end of spar 2
-sigma_l_spar_2 = bending_curvature*Ex2*(spar_2_low+t_cap_2_l-z_E(ii))*scale; % stress at lower end of spar 2
+sigma_u_spar_1 = bending_curvature*Ex_spar_1*(spar_1_up-z_E(ii))*scale; % stress at upper end of spar 1
+sigma_l_spar_1 = bending_curvature*Ex_spar_1*(spar_1_low-z_E(ii))*scale; % stress at lower end of spar 1
+sigma_u_spar_2 = bending_curvature*Ex_spar_2*(spar_2_up-z_E(ii))*scale; % stress at upper end of spar 2
+sigma_l_spar_2 = bending_curvature*Ex_spar_2*(spar_2_low-z_E(ii))*scale; % stress at lower end of spar 2
 
 if reinf ==0
-    sigma_u_cap_1 = bending_curvature*Ex_cap_1_u*(interp1(0:.01:1,up,x_spar_1)-z_E(ii)-(t_skin+t_cap_1_u/2)/cos(slope_u_1))*scale; % stress at upper cap 1
-    sigma_l_cap_1 = bending_curvature*Ex_cap_1_l*(interp1(0:.01:1,lp,x_spar_1)-z_E(ii)+(t_skin+t_cap_1_l/2)/cos(slope_l_1))*scale; % stress at lower cap 1
-    sigma_u_cap_2 = bending_curvature*Ex_cap_2_u*(interp1(0:.01:1,up,x_spar_2)-z_E(ii)-(t_skin+t_cap_2_u/2)/cos(slope_u_2))*scale; % stress at upper cap 2
-    sigma_l_cap_2 = bending_curvature*Ex_cap_2_l*(interp1(0:.01:1,lp,x_spar_2)-z_E(ii)+(t_skin+t_cap_2_l/2)/cos(slope_l_1))*scale; % stress at lower cap 2
+    sigma_cap_1_u = bending_curvature*Ex_cap_1_u*(z_airfoil_u_1-z_E(ii)-(t_skin+t_cap_1_u/2)/cos(slope_u_1))*scale; % stress at upper cap 1
+    sigma_cap_1_l = bending_curvature*Ex_cap_1_l*(z_airfoil_l_1-z_E(ii)+(t_skin+t_cap_1_l/2)/cos(slope_l_1))*scale; % stress at lower cap 1
+    sigma_cap_2_u = bending_curvature*Ex_cap_2_u*(z_airfoil_u_2-z_E(ii)-(t_skin+t_cap_2_u/2)/cos(slope_u_2))*scale; % stress at upper cap 2
+    sigma_cap_2_l = bending_curvature*Ex_cap_2_l*(z_airfoil_l_2-z_E(ii)+(t_skin+t_cap_2_l/2)/cos(slope_l_2))*scale; % stress at lower cap 2
 else
-    sigma_u_cap_1 = bending_curvature*Ex_cap_1_u*(interp1(0:.01:1,up,x_spar_1)-z_E(ii)-(t_skin_reinf+t_cap_1_u/2)/cos(slope_u_1))*scale; % stress at upper cap 1
-    sigma_l_cap_1 = bending_curvature*Ex_cap_1_l*(interp1(0:.01:1,lp,x_spar_1)-z_E(ii)+(t_skin_reinf+t_cap_1_l/2)/cos(slope_l_1))*scale; % stress at lower cap 1
-    sigma_u_cap_2 = bending_curvature*Ex_cap_2_u*(interp1(0:.01:1,up,x_spar_2)-z_E(ii)-(t_skin_reinf+t_cap_2_u/2)/cos(slope_u_2))*scale; % stress at upper cap 2
-    sigma_l_cap_2 = bending_curvature*Ex_cap_2_l*(interp1(0:.01:1,lp,x_spar_2)-z_E(ii)+(t_skin_reinf+t_cap_2_l/2)/cos(slope_l_1))*scale; % stress at lower cap 2
+    sigma_cap_1_u = bending_curvature*Ex_cap_1_u*(z_airfoil_u_1-z_E(ii)-(t_skin_reinf+t_cap_1_u/2)/cos(slope_u_1))*scale; % stress at upper cap 1
+    sigma_cap_1_l = bending_curvature*Ex_cap_1_l*(z_airfoil_l_1-z_E(ii)+(t_skin_reinf+t_cap_1_l/2)/cos(slope_l_1))*scale; % stress at lower cap 1
+    sigma_cap_2_u = bending_curvature*Ex_cap_2_u*(z_airfoil_u_2-z_E(ii)-(t_skin_reinf+t_cap_2_u/2)/cos(slope_u_2))*scale; % stress at upper cap 2
+    sigma_cap_2_l = bending_curvature*Ex_cap_2_l*(z_airfoil_l_2-z_E(ii)+(t_skin_reinf+t_cap_2_l/2)/cos(slope_l_2))*scale; % stress at lower cap 2
 end
 
 
-sigma_u_side_cap_1 = bending_curvature*Ex_side_cap_1*(interp1(0:.01:1,up,x_spar_1)-z_E(ii))*scale; % stress at upper side_cap 1
-sigma_l_side_cap_1 = bending_curvature*Ex_side_cap_1*(interp1(0:.01:1,lp,x_spar_1)-z_E(ii))*scale; % stress at lower side_cap 1
-sigma_u_side_cap_2 = bending_curvature*Ex_side_cap_2*(interp1(0:.01:1,up,x_spar_2)-z_E(ii))*scale; % stress at upper side_cap 2
-sigma_l_side_cap_2 = bending_curvature*Ex_side_cap_2*(interp1(0:.01:1,lp,x_spar_2)-z_E(ii))*scale; % stress at lower side_cap 2
-M_b_spar_1(ii) = bending_curvature*(Ex1*I1+EI_cap_1_u/scale^4+EI_cap_1_l/scale^4+Ex_side_cap_1*(I_side_cap_1_u+I_side_cap_1_l))*scale^4;
-M_b_spar_2(ii) = bending_curvature*(Ex2*I2+EI_cap_2_u/scale^4+EI_cap_2_l/scale^4+Ex_side_cap_2*(I_side_cap_2_u+I_side_cap_2_l))*scale^4;
+sigma_u_side_cap_1 = bending_curvature*Ex_side_cap_1*(z_airfoil_u_1-z_E(ii))*scale; % stress at upper side_cap 1
+sigma_l_side_cap_1 = bending_curvature*Ex_side_cap_1*(z_airfoil_l_1-z_E(ii))*scale; % stress at lower side_cap 1
+sigma_u_side_cap_2 = bending_curvature*Ex_side_cap_2*(z_airfoil_u_2-z_E(ii))*scale; % stress at upper side_cap 2
+sigma_l_side_cap_2 = bending_curvature*Ex_side_cap_2*(z_airfoil_l_2-z_E(ii))*scale; % stress at lower side_cap 2
+M_b_spar_1(ii) = bending_curvature*(Ex_spar_1*I1+EI_cap_1_u/scale^4+EI_cap_1_l/scale^4+Ex_side_cap_1*(I_side_cap_1_u+I_side_cap_1_l))*scale^4;
+M_b_spar_2(ii) = bending_curvature*(Ex_spar_2*I2+EI_cap_2_u/scale^4+EI_cap_2_l/scale^4+Ex_side_cap_2*(I_side_cap_2_u+I_side_cap_2_l))*scale^4;
 M_b_skin(ii) = bending_curvature*(Ex_skin*I_skin)*scale^4;
 
 %% Revised 26/9/2024
@@ -642,27 +648,29 @@ end
 %% Additional load due to taper (Megson 23.6) Revised 14/10/2024
 x_spar_1_0(ii) = x_spar_1;
 x_spar_2_0(ii) = x_spar_2;
-spar_1_up_0(ii) = interp1(0:.01:1,up,x_spar_1);
-spar_1_low_0(ii) = interp1(0:.01:1,lp,x_spar_1);
-spar_2_up_0(ii) = interp1(0:.01:1,up,x_spar_2);
-spar_2_low_0(ii) = interp1(0:.01:1,lp,x_spar_2);
+spar_1_up_0(ii) = z_airfoil_u_1;
+spar_1_low_0(ii) = z_airfoil_l_1;
+spar_2_up_0(ii) = z_airfoil_u_2;
+spar_2_low_0(ii) = z_airfoil_l_2;
 if ii<length(y_coord)
-    dz_dy_1_u = (-spar_1_up_0(ii+1)*c_length(ii+1)+spar_1_up_0(ii)*c_length(ii))/2/dy;
-    dz_dy_1_l = (-spar_1_low_0(ii+1)*c_length(ii+1)+spar_1_low_0(ii)*c_length(ii))/2/dy;
-    dz_dy_2_u = (-spar_2_up_0(ii+1)*c_length(ii+1)+spar_2_up_0(ii)*c_length(ii))/2/dy;
-    dz_dy_2_l = (-spar_2_low_0(ii+1)*c_length(ii+1)+spar_2_low_0(ii)*c_length(ii))/2/dy;
-    dx_dy_1 = (-x_coord(ii+1)-x_spar_1_0(ii+1)*c_length(ii+1)+x_coord(ii)+x_spar_1_0(ii)*c_length(ii))/2/dy;
-    dx_dy_2 = (-x_coord(ii+1)-x_spar_2_0(ii+1)*c_length(ii+1)+x_coord(ii)+x_spar_2_0(ii)*c_length(ii))/2/dy;
+    % bo /2 duoi mau
+    dz_dy_1_u = (-spar_1_up_0(ii+1)*c_length(ii+1)+spar_1_up_0(ii)*c_length(ii))/dy;
+    dz_dy_1_l = (-spar_1_low_0(ii+1)*c_length(ii+1)+spar_1_low_0(ii)*c_length(ii))/dy;
+    dz_dy_2_u = (-spar_2_up_0(ii+1)*c_length(ii+1)+spar_2_up_0(ii)*c_length(ii))/dy;
+    dz_dy_2_l = (-spar_2_low_0(ii+1)*c_length(ii+1)+spar_2_low_0(ii)*c_length(ii))/dy;
+     % hoanh do tuyet doi cua dam: x_LE - x_spar*c (truc x huong ve phia truoc)
+    dx_dy_1 = (-x_LE(ii+1)+x_spar_1_0(ii+1)*c_length(ii+1)+x_LE(ii)-x_spar_1_0(ii)*c_length(ii))/dy;
+    dx_dy_2 = (-x_LE(ii+1)+x_spar_2_0(ii+1)*c_length(ii+1)+x_LE(ii)-x_spar_2_0(ii)*c_length(ii))/dy;
     
-    delta_F_shear = (-(sigma_u_cap_1*d_cap_1*t_cap_1_u+sigma_u_side_cap_1*t_side_cap_1)*dz_dy_1_u-...
-        (sigma_l_cap_1*d_cap_1*t_cap_1_l+sigma_u_side_cap_1*t_side_cap_1)*dz_dy_1_l-...
-        (sigma_u_cap_2*d_cap_2*t_cap_2_u+sigma_u_side_cap_2*t_side_cap_2)*dz_dy_2_u-...
-        (sigma_l_cap_2*d_cap_2*t_cap_2_l+sigma_u_side_cap_2*t_side_cap_2)*dz_dy_2_l)*scale^2;
+    delta_F_shear = (-(sigma_cap_1_u*d_cap_1*t_cap_1_u + sigma_u_side_cap_1*d_side_cap_1*t_side_cap_1)*dz_dy_1_u-...
+        (sigma_cap_1_l*d_cap_1*t_cap_1_l + sigma_l_side_cap_1*d_side_cap_1*t_side_cap_1)*dz_dy_1_l-...
+        (sigma_cap_2_u*d_cap_2*t_cap_2_u + sigma_u_side_cap_2*d_side_cap_2*t_side_cap_2)*dz_dy_2_u-...
+        (sigma_cap_2_l*d_cap_2*t_cap_2_l + sigma_l_side_cap_2*d_side_cap_2*t_side_cap_2)*dz_dy_2_l)*scale^2;
     
-    delta_M = (-(sigma_u_cap_1*d_cap_1*t_cap_1_u+sigma_u_side_cap_1*t_side_cap_1)*dx_dy_1*(spar_1_up-z_E(ii))-...
-        (sigma_l_cap_1*d_cap_1*t_cap_1_l+sigma_u_side_cap_1*t_side_cap_1)*dx_dy_1*(spar_1_low-z_E(ii))-...
-        (sigma_u_cap_2*d_cap_2*t_cap_2_u+sigma_u_side_cap_2*t_side_cap_2)*dx_dy_2*(spar_2_up-z_E(ii))-...
-        (sigma_l_cap_2*d_cap_2*t_cap_2_l+sigma_u_side_cap_2*t_side_cap_2)*dx_dy_2*(spar_2_low-z_E(ii)))*scale^3;
+    delta_M = (-(sigma_cap_1_u*d_cap_1*t_cap_1_u + sigma_u_side_cap_1*d_side_cap_1*t_side_cap_1)*dx_dy_1*(spar_1_up-z_E(ii))-...
+        (sigma_cap_1_l*d_cap_1*t_cap_1_l + sigma_l_side_cap_1*d_side_cap_1*t_side_cap_1)*dx_dy_1*(spar_1_low-z_E(ii))-...
+        (sigma_cap_2_u*d_cap_2*t_cap_2_u + sigma_u_side_cap_2*d_side_cap_2*t_side_cap_2)*dx_dy_2*(spar_2_up-z_E(ii))-...
+        (sigma_cap_2_l*d_cap_2*t_cap_2_l + sigma_l_side_cap_2*d_side_cap_2*t_side_cap_2)*dx_dy_2*(spar_2_low-z_E(ii)))*scale^3;
     
     if reinf ==1
         delta_F_shear = delta_F_shear-(max_sigma_u_skin_reinf*t_skin_reinf*d_reinf_1*dz_dy_1_u+...
@@ -693,7 +701,7 @@ if ii < index_boom
     F_shear(ii) = F_shear(ii)-n_load*9.81*((m_tail+m_elev)/2+m_vert_tail+m_boom)+F_tail/2+F_ground; % contribution of inertial force of tail
 end
 
-if ii <= round(fix_loc/dy)
+if ii <= round(fix_loc/dy + 1)
     F_shear(ii) = F_shear(ii)+F_react;
 end
 
@@ -709,11 +717,11 @@ A3 = sum((up(index2:end)-lp(index2:end))*.01);
 % open beam shear flow 
 q_b1 = (F_shear(ii))/EI(ii)*...
     ((Ex_cap_1_u+Ex_cap_1_l)/2*d_cap_1*(t_cap_1_u+t_cap_1_l)/2+Ex_side_cap_1*d_side_cap_1*t_side_cap_1+...
-    Ex1*h_spar_1*t_spar_1/6*(2-1)+Ex_skin*(sum(elem_length_u(index1:index2-1))+sum(elem_length_l(index1:index2-1)))/2*t_skin/6*(2+1)+...
+    Ex_spar_1*h_spar_1*t_spar_1/6*(2-1)+Ex_skin*(sum(elem_length_u(index1:index2-1))+sum(elem_length_l(index1:index2-1)))/2*t_skin/6*(2+1)+...
     Ex_skin*(sum(elem_length_u(1:index1-1))+sum(elem_length_l(1:index1-1)))/2*t_skin/6*(2+0))*h_spar_1/2*scale^3;
 q_b2 = (F_shear(ii))/EI(ii)*...
     ((Ex_cap_2_u+Ex_cap_2_l)/2*d_cap_2*(t_cap_2_u+t_cap_2_l)/2+Ex_side_cap_2*d_side_cap_2*t_side_cap_2+...
-    Ex2*h_spar_2*t_spar_2/6*(2-1)+Ex_skin*(sum(elem_length_u(index1:index2-1))+sum(elem_length_l(index1:index2-1)))/2*t_skin/6*(2+1)+...
+    Ex_spar_2*h_spar_2*t_spar_2/6*(2-1)+Ex_skin*(sum(elem_length_u(index1:index2-1))+sum(elem_length_l(index1:index2-1)))/2*t_skin/6*(2+1)+...
     Ex_skin*(sum(elem_length_u(index2:end))+sum(elem_length_l(index2:end)))/2*t_skin/6*(2+0))*h_spar_2/2*scale^3;
 if reinf == 1
     q_b1 = q_b1+F_shear(ii)/EI(ii)*Ex_skin_reinf*t_skin_reinf*d_reinf_1*h_spar_1/2*scale^3;
@@ -732,8 +740,8 @@ else
     delta_3 = (sum(elem_length_u(index2:end))+sum(elem_length_l(index2:end))-d_reinf_2)/G_skin/t_skin+...
         d_reinf_2/G_skin_reinf/t_skin_reinf;
 end
-delta_1_2 = h_spar_1/G1/t_spar_1;
-delta_2_3 = h_spar_2/G2/t_spar_2;
+delta_1_2 = h_spar_1/G_spar_1/t_spar_1;
+delta_2_3 = h_spar_2/G_spar_2/t_spar_2;
 
 % Shear center 
 x_E(ii) = shear_center(q_b1,q_b2,A1,A2,A3,delta_1,delta_2,delta_3,delta_1_2,delta_2_3,x_spar_1,x_spar_2,h_spar_1,h_spar_2);
@@ -745,10 +753,10 @@ M_t(ii) = -(sum(0.8*F0.*(x_spar_1-x_E(ii))*scale+0.2*F0.*(x_spar_2-x_E(ii))*scal
 %     M_t(ii) = M_t(ii)+n_load*9.81*(((m_tail+m_elev)/2+m_vert_tail)*(d_tail-x_E(ii)*scale)+m_boom*(xc_boom-x_E(ii)*scale))+...
 %         F_tail/2*d_tail; % contribution of inertial force of tail
 % end
-if ii == round(fix_loc/dy)
+if ii == round(fix_loc/dy + 1)
     M_react = -M_t(ii);
 end
-if ii <= round(fix_loc/dy)
+if ii <= round(fix_loc/dy + 1)
     M_t(ii) = M_t(ii)+M_react;
 end
 if M_t(ii) == 0
@@ -762,8 +770,8 @@ end
 
 % Mean shear stress
 Q = [q1/(t_skin*scale),q2/(t_skin*scale),q3/(t_skin*scale)];
-[max_shear_skin,I] = max(Q); % shear stress on skin
-max_shear_skin = max_shear_skin*sign(Q(I));
+[~,I] = max(abs(Q)); % shear stress on skin
+max_shear_skin = Q(I);
 shear_cap_1_u = max_shear_skin*t_skin/t_cap_1_u; % shear stress on cap 1
 shear_cap_1_l = max_shear_skin*t_skin/t_cap_1_l; % shear stress on cap 1
 shear_cap_2_u = max_shear_skin*t_skin/t_cap_2_u; % shear stress on cap 2
@@ -816,7 +824,7 @@ Im(ii) = ((I1+I1_y)*sum(rho_spar_1.*t_layer_spar_1)/sum(t_layer_spar_1)+...
     (I_side_cap_1_u+I_side_cap_1_l+I_side_cap_1_y)*sum(rho_side_cap_1.*t_layer_side_cap_1)/sum(t_layer_side_cap_1)+...
     (I_side_cap_2_u+I_side_cap_2_l+I_side_cap_2_y)*sum(rho_side_cap_2.*t_layer_side_cap_2)/sum(t_layer_side_cap_2)+...
     (I_skin+I_skin_y)*sum(rho_skin.*t_layer_skin)/sum(t_layer_skin))*scale^4+...
-    sum(rho_rib.*t_layer_rib)/sum(t_layer_rib)*t_rib*(h_rib_1+h_rib_2)/2*(x_spar_2-x_spar_1)*(((h_rib_1+h_rib_2)^2/4+(x_spar_2-x_spar_1)^2)/12+d_rib_sq)*n_rib*scale^5;
+    sum(rho_rib.*t_layer_rib)/sum(t_layer_rib)*t_rib*(h_spar_1+h_spar_2)/2*(x_spar_2-x_spar_1)*(((h_spar_1+h_spar_2)^2/4+(x_spar_2-x_spar_1)^2)/12+d_rib_sq)*n_rib*scale^5;
 
 %% Revise 26/9/2024
 if reinf == 1
@@ -831,7 +839,7 @@ S_spar_2 = t_spar_2*scale;
 if ii == length(y_coord)
     compr_strain = 0;
 else
-    compr_strain = (F_dist(ii)-n_load*9.81*m_airfoil(ii))/(S_rib*Ez_rib*n_rib+S_spar_1*Ez1+S_spar_2*Ez2);
+    compr_strain = (F_dist(ii)-n_load*9.81*m_airfoil(ii))/(S_rib*Ez_rib*n_rib+S_spar_1*Ez_spar_1+S_spar_2*Ez_spar_2);
 end
 
 %% Rib shear
@@ -857,17 +865,17 @@ if reinf == 1
 end
 %%
 % Front spar
-strain_xz_u_spar_1 = S_lam_1*[sigma_u_spar_1; -compr_strain*Ez1; shear_spar_1]; % Upper end
-strain_xz_l_spar_1 = S_lam_1*[sigma_l_spar_1; -compr_strain*Ez1; shear_spar_1]; % Lower end
+strain_xz_u_spar_1 = S_lam_spar_1*[sigma_u_spar_1; -compr_strain*Ez_spar_1; shear_spar_1]; % Upper end
+strain_xz_l_spar_1 = S_lam_spar_1*[sigma_l_spar_1; -compr_strain*Ez_spar_1; shear_spar_1]; % Lower end
 % Aft spar
-strain_xz_u_spar_2 = S_lam_2*[sigma_u_spar_2; -compr_strain*Ez2; shear_spar_2]; % Upper end
-strain_xz_l_spar_2 = S_lam_2*[sigma_l_spar_2; -compr_strain*Ez2; shear_spar_2]; % Lower end
+strain_xz_u_spar_2 = S_lam_spar_2*[sigma_u_spar_2; -compr_strain*Ez_spar_2; shear_spar_2]; % Upper end
+strain_xz_l_spar_2 = S_lam_spar_2*[sigma_l_spar_2; -compr_strain*Ez_spar_2; shear_spar_2]; % Lower end
 % Cap 1
-strain_xy_u_cap_1 = S_lam_cap_1*[sigma_u_cap_1; 0; shear_cap_1_u]; % Upper end
-strain_xy_l_cap_1 = S_lam_cap_1*[sigma_l_cap_1; 0; shear_cap_1_l]; % Lower end
+strain_xy_u_cap_1 = S_lam_cap_1_u*[sigma_cap_1_u; 0; shear_cap_1_u]; % Upper end
+strain_xy_l_cap_1 = S_lam_cap_1_l*[sigma_cap_1_l; 0; shear_cap_1_l]; % Lower end
 % Cap 2
-strain_xy_u_cap_2 = S_lam_cap_2*[sigma_u_cap_2; 0; shear_cap_2_u]; % Upper end
-strain_xy_l_cap_2 = S_lam_cap_2*[sigma_l_cap_2; 0; shear_cap_2_l]; % Lower end
+strain_xy_u_cap_2 = S_lam_cap_2_u*[sigma_cap_2_u; 0; shear_cap_2_u]; % Upper end
+strain_xy_l_cap_2 = S_lam_cap_2_l*[sigma_cap_2_l; 0; shear_cap_2_l]; % Lower end
 % side_cap 1
 strain_xy_u_side_cap_1 = S_lam_side_cap_1*[sigma_u_side_cap_1; 0; shear_side_cap_1]; % Upper end
 strain_xy_l_side_cap_1 = S_lam_side_cap_1*[sigma_l_side_cap_1; 0; shear_side_cap_1]; % Lower end
@@ -959,7 +967,7 @@ f_l_side_cap_2(ii,1:length(E1_layer_side_cap_2)) = THstrength(E1_layer_side_cap_
 % Gibson eq. 7.147
 sigma_compr = abs(min([max_sigma_u_skin max_sigma_l_skin]));
 N_compr = sigma_compr*t_skin*scale;
-n = 1;
+nn = 1;
 m_array = 1:20;
 D11 = D_lam_skin(1,1);
 D12 = D_lam_skin(1,2);
@@ -969,8 +977,8 @@ b = (x_spar_2-x_spar_1)*scale;
 R = a/b;
 N_ratio_min_skin(ii) = 1e6;
 for i=1:length(m_array)
-    m = m_array(i);
-    N_cr = (pi^2/m^2/a^2)*(D11*m^4+2*(D12+2*D66)*(m*n*R)^2+D22*(n*R)^4);
+    mm = m_array(i);
+    N_cr = (pi^2/mm^2/a^2)*(D11*mm^4+2*(D12+2*D66)*(mm*nn*R)^2+D22*(nn*R)^4);
     if N_cr/N_compr<N_ratio_min_skin(ii)
         N_ratio_min_skin(ii) = N_cr/N_compr; % ratio of N force to critical N force
     end
@@ -979,12 +987,13 @@ f_buckling_skin = 1./N_ratio_min_skin;
 
 %% Skin bending deflection
 % Gibson eq. 7.139
+% #Đề xuất bỏ cả khối
 q0 = 0/a/b;
 w_skin = 0;
-for m=1:2:15
-    for n=1:2:15
-        q_mn = 16*q0/pi^2/m/n;
-        w_skin = w_skin+a^4*q_mn/pi^4/(D11*m^4+2*(D12+2*D66)*(m*n*R)^2+D22*(n*R)^4);
+for mm=1:2:15
+    for nn=1:2:15
+        q_mn = 16*q0/pi^2/mm/nn;
+        w_skin = w_skin+a^4*q_mn/pi^4/(D11*mm^4+2*(D12+2*D66)*(mm*nn*R)^2+D22*(nn*R)^4);
     end
 end
 skin_defl_ratio(ii) = w_skin/scale*100; % Maximum skin bending deflection ratio
@@ -993,7 +1002,7 @@ skin_defl_ratio(ii) = w_skin/scale*100; % Maximum skin bending deflection ratio
 % Gibson eq. 7.147
 sigma_compr = compr_strain*Ez_rib;
 N_compr = sigma_compr*t_rib*scale;
-n = 1;
+nn = 1;
 m_array = 1:10;
 D11 = D_lam_rib(1,1);
 D12 = D_lam_rib(1,2);
@@ -1004,8 +1013,8 @@ a_rib = (h_spar_1+h_spar_2)/2*scale;
 R = a_rib/b;
 N_ratio_min_rib(ii) = 1e6;
 for i=1:length(m_array)
-    m = m_array(i);
-    N_cr = (pi^2/m^2/a_rib^2)*(D11*m^4+2*(D12+2*D66)*(m*n*R)^2+D22*(n*R)^4);
+    mm = m_array(i);
+    N_cr = (pi^2/mm^2/a_rib^2)*(D11*mm^4+2*(D12+2*D66)*(mm*nn*R)^2+D22*(nn*R)^4);
     if N_cr/N_compr<N_ratio_min_rib(ii)
         N_ratio_min_rib(ii) = N_cr/N_compr; % ratio of N force to critical N force
     end
@@ -1022,10 +1031,10 @@ else
     v_stress_u_skin_reinf(ii) = v_stress_u_skin(ii);
     v_stress_l_skin_reinf(ii) = v_stress_l_skin(ii);
 end
-v_stress_u_cap_1(ii) = vonMises([sigma_u_cap_1; 0; shear_cap_1_u]);
-v_stress_u_cap_2(ii) = vonMises([sigma_u_cap_2; 0; shear_cap_2_u]);
-v_stress_l_cap_1(ii) = vonMises([sigma_l_cap_1; 0; shear_cap_1_u]);
-v_stress_l_cap_2(ii) = vonMises([sigma_l_cap_2; 0; shear_cap_2_u]);
+v_stress_u_cap_1(ii) = vonMises([sigma_cap_1_u; 0; shear_cap_1_u]);
+v_stress_u_cap_2(ii) = vonMises([sigma_cap_2_u; 0; shear_cap_2_u]);
+v_stress_l_cap_1(ii) = vonMises([sigma_cap_1_l; 0; shear_cap_1_l]);
+v_stress_l_cap_2(ii) = vonMises([sigma_cap_2_l; 0; shear_cap_2_l]);
 %rib
 v_stress_front_rib(ii) = vonMises([0; -compr_strain*Ez_rib; rib_shear_front]);
 v_stress_rear_rib(ii) = vonMises([0; -compr_strain*Ez_rib; rib_shear_rear]);
@@ -1034,16 +1043,15 @@ v_stress_rear_rib(ii) = vonMises([0; -compr_strain*Ez_rib; rib_shear_rear]);
 eq_strain_u_skin(ii) = eq_strain(strain_xy_u_skin);
 eq_strain_l_skin(ii) = eq_strain(strain_xy_l_skin);
 if reinf == 1
-    eq_strain_u_skin_reinf = eq_strain(strain_xy_u_skin_reinf);
-    eq_strain_l_skin_reinf = eq_strain(strain_xy_l_skin_reinf);
+    eq_strain_u_skin_reinf(ii) = eq_strain(strain_xy_u_skin_reinf);
+    eq_strain_l_skin_reinf(ii) = eq_strain(strain_xy_l_skin_reinf);
 else
-    eq_strain_u_skin_reinf = eq_strain_u_skin;
-    eq_strain_l_skin_reinf = eq_strain_l_skin;
+    eq_strain_u_skin_reinf(ii) = eq_strain_u_skin(ii);
+    eq_strain_l_skin_reinf(ii) = eq_strain_l_skin(ii);
 end
 eq_strain_u_cap_1(ii) = eq_strain(strain_xy_u_cap_1);
 eq_strain_u_cap_2(ii) = eq_strain(strain_xy_u_cap_2);
 eq_strain_l_cap_1(ii) = eq_strain(strain_xy_l_cap_1);
 eq_strain_l_cap_2(ii) = eq_strain(strain_xy_l_cap_2);
-%rib
 eq_strain_front_rib(ii) = eq_strain(strain_yz_front_rib);
 eq_strain_rear_rib(ii) = eq_strain(strain_yz_rear_rib);
