@@ -2,16 +2,6 @@ clear ;
 close all;
 clc;
 
-% chua tinh den khoi luong cac bo phan khac
-m_tail = 0;
-m_elev = 0;
-m_vert_tail = 0;
-m_boom = 0;
-F_tail = 0;
-F_ground = 0;
-d_tail = 6;
-xc_boom = 3;
-
 fix_loc = 265e-3;
 
 % Thong so vat lieu
@@ -34,8 +24,6 @@ for i=1:n
    end
 end
 
-boom_attach_loc = 1560e-3;
-index_boom = round(boom_attach_loc/dy)+1;
 n_load = 1;
 
 

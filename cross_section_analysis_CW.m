@@ -565,13 +565,6 @@ EI_cap_2_l = 1/M_mat(1)*d_cap_2*scale;
 
 
 % Bending moment
-% M_b(ii) = (sum(F_point.*max(0,(y_point-y_coord(ii)))) -...
-%     sum(n_load*9.81*0.5*(m_airfoil(ii+1:end)+m_airfoil(ii:end-1))'.*(y_coord(ii+1:end)-y_coord(ii)-dy/2))*dy);
-% if ii <= index_boom
-%     M_b(ii) = M_b(ii)-n_load*9.81*((m_tail+m_elev)/2+m_vert_tail+m_boom)*(y_coord(index_boom)-y_coord(ii))+...
-%         (F_tail/2+F_ground)*(y_coord(index_boom)-y_coord(ii)); % contribution of inertial force of tail
-% end
-
 if ii == length(y_coord)
     M_b(ii) = 0;
 else
@@ -697,16 +690,16 @@ else
     F_shear(ii) = (sum(F0)-sum(n_load*9.81*0.5*(m_airfoil(ii+1:end)+m_airfoil(ii:end-1)))*dy);
 end
 
-if ii < index_boom
-    F_shear(ii) = F_shear(ii)-n_load*9.81*((m_tail+m_elev)/2+m_vert_tail+m_boom)+F_tail/2+F_ground; % contribution of inertial force of tail
-end
-
 if ii <= round(fix_loc/dy + 1)
     F_shear(ii) = F_shear(ii)+F_react;
 end
 
-if F_shear(ii)==0
-    F_shear(ii) =.01;
+% Luc cat co tinh vat: F_shear (ngoai luc) + phan hieu chinh do vat (Megson 23.6)
+% F_shear giu nguyen la luc cat ngoai vi coupled_beam dung no de tinh tai nut
+F_shear_incl_taper = F_shear(ii)+delta_F_shear;
+
+if F_shear_incl_taper==0
+    F_shear_incl_taper =.01;
 end
 % Cell areas
 index1 = round(x_spar_1/.01);
@@ -715,17 +708,17 @@ A1 = sum((up(1:index1-1)-lp(1:index1-1))*.01);
 A2 = sum((up(index1:index2-1)-lp(index1:index2-1))*.01);
 A3 = sum((up(index2:end)-lp(index2:end))*.01);
 % open beam shear flow 
-q_b1 = (F_shear(ii))/EI(ii)*...
+q_b1 = F_shear_incl_taper/EI(ii)*...
     ((Ex_cap_1_u+Ex_cap_1_l)/2*d_cap_1*(t_cap_1_u+t_cap_1_l)/2+Ex_side_cap_1*d_side_cap_1*t_side_cap_1+...
     Ex_spar_1*h_spar_1*t_spar_1/6*(2-1)+Ex_skin*(sum(elem_length_u(index1:index2-1))+sum(elem_length_l(index1:index2-1)))/2*t_skin/6*(2+1)+...
     Ex_skin*(sum(elem_length_u(1:index1-1))+sum(elem_length_l(1:index1-1)))/2*t_skin/6*(2+0))*h_spar_1/2*scale^3;
-q_b2 = (F_shear(ii))/EI(ii)*...
+q_b2 = F_shear_incl_taper/EI(ii)*...
     ((Ex_cap_2_u+Ex_cap_2_l)/2*d_cap_2*(t_cap_2_u+t_cap_2_l)/2+Ex_side_cap_2*d_side_cap_2*t_side_cap_2+...
     Ex_spar_2*h_spar_2*t_spar_2/6*(2-1)+Ex_skin*(sum(elem_length_u(index1:index2-1))+sum(elem_length_l(index1:index2-1)))/2*t_skin/6*(2+1)+...
     Ex_skin*(sum(elem_length_u(index2:end))+sum(elem_length_l(index2:end)))/2*t_skin/6*(2+0))*h_spar_2/2*scale^3;
 if reinf == 1
-    q_b1 = q_b1+F_shear(ii)/EI(ii)*Ex_skin_reinf*t_skin_reinf*d_reinf_1*h_spar_1/2*scale^3;
-    q_b2 = q_b2+F_shear(ii)/EI(ii)*Ex_skin_reinf*t_skin_reinf*d_reinf_2*h_spar_2/2*scale^3;
+    q_b1 = q_b1+F_shear_incl_taper/EI(ii)*Ex_skin_reinf*t_skin_reinf*d_reinf_1*h_spar_1/2*scale^3;
+    q_b2 = q_b2+F_shear_incl_taper/EI(ii)*Ex_skin_reinf*t_skin_reinf*d_reinf_2*h_spar_2/2*scale^3;
 end
 
 if reinf == 0
@@ -748,25 +741,26 @@ x_E(ii) = shear_center(q_b1,q_b2,A1,A2,A3,delta_1,delta_2,delta_3,delta_1_2,delt
 
 % Torsion moment
 M_t(ii) = -(sum(0.8*F0.*(x_spar_1-x_E(ii))*scale+0.2*F0.*(x_spar_2-x_E(ii))*scale) -...
-    sum(n_load*9.81*.5*(m_airfoil(ii+1:end)+m_airfoil(ii:end-1)).*(0.5*(xc_airfoil(ii+1:end)+xc_airfoil(ii:end-1))-x_E(ii))*scale)*dy)-delta_M;
-% if ii <= index_boom
-%     M_t(ii) = M_t(ii)+n_load*9.81*(((m_tail+m_elev)/2+m_vert_tail)*(d_tail-x_E(ii)*scale)+m_boom*(xc_boom-x_E(ii)*scale))+...
-%         F_tail/2*d_tail; % contribution of inertial force of tail
-% end
+    sum(n_load*9.81*.5*(m_airfoil(ii+1:end)+m_airfoil(ii:end-1)).*(0.5*(xc_airfoil(ii+1:end)+xc_airfoil(ii:end-1))-x_E(ii))*scale)*dy);
 if ii == round(fix_loc/dy + 1)
     M_react = -M_t(ii);
 end
 if ii <= round(fix_loc/dy + 1)
     M_t(ii) = M_t(ii)+M_react;
 end
-if M_t(ii) == 0
-   M_t(ii) = .1; 
+
+% Mo men xoan co tinh vat: M_t (ngoai luc) + phan hieu chinh do vat (Megson 23.6)
+% M_t giu nguyen la mo men xoan ngoai vi coupled_beam dung no de tinh tai nut
+M_t_incl_taper = M_t(ii)-delta_M;
+
+if M_t_incl_taper == 0
+   M_t_incl_taper = .1;
 end
 % Shear flow
 
 [q1, q2, q3, GJ(ii)] = shear_flow(q_b1, q_b2, A1*scale^2, A2*scale^2, A3*scale^2,...
     delta_1, delta_2, delta_3, delta_1_2, delta_2_3, x_spar_1*scale, x_spar_2*scale, ...
-    h_spar_1*scale, h_spar_2*scale, x_E(ii)*scale, M_t(ii));
+    h_spar_1*scale, h_spar_2*scale, x_E(ii)*scale, M_t_incl_taper);
 
 % Mean shear stress
 Q = [q1/(t_skin*scale),q2/(t_skin*scale),q3/(t_skin*scale)];
@@ -846,12 +840,6 @@ end
 S_rib_shear = min([h_spar_1,h_spar_2])*t_rib*scale^2;
 rib_shear_front = a*(F_dist(ii)-n_load*9.81*m_airfoil(ii))/2/S_rib_shear;
 rib_shear_rear = a*(F_dist(ii)-n_load*9.81*m_airfoil(ii))/2/S_rib_shear;
-if ii == index_boom
-    rib_shear_front = rib_shear_front +...
-        (F_ground/2 - (F_tail/2*d_tail - n_load*9.81*(((m_tail+m_elev)/2+m_vert_tail)*d_tail + m_boom*xc_boom))/(x_spar_2-x_spar_1)/scale)/S_rib_shear;
-    rib_shear_rear = rib_shear_rear +...
-        (F_ground/2 + (F_tail/2*d_tail - n_load*9.81*(((m_tail+m_elev)/2+m_vert_tail)*d_tail + m_boom*xc_boom))/(x_spar_2-x_spar_1)/scale)/S_rib_shear;
-end
 
 %% Strain analysis
 % Skin

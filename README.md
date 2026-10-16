@@ -85,13 +85,12 @@ Xếp lớp trong `cross_section_analysis_CW.m` được viết dạng chuỗi, 
 | Biến | Ý nghĩa | Giá trị hiện tại |
 |---|---|---|
 | `dy`, `y_coord` | Bước lưới và tọa độ nửa sải cánh (m) | 0.02; 0 → 8.0 |
-| `c_length`, `x_coord` | Dây cung và tọa độ mép trước theo y | 0.8 m đến y = 1.75, thuôn còn 0.4 m ở đầu cánh |
+| `c_length`, `x_LE` | Dây cung và tọa độ mép trước theo y | 0.8 m đến y = 1.75, thuôn còn 0.4 m ở đầu cánh |
 | `ribs_coord` | Vị trí sườn (mm) | 15 sườn |
 | `fix_loc` | Vị trí liên kết với thân, đối xứng ±y (m) | 0.265 |
 | `x_spar_1`, `x_spar_2` | Vị trí dầm trước/sau (phần dây cung) | 0.221; 0.711 |
 | `core_thickness_*`, `d_side_cap_*`, `reinf`, `d_reinf_*` | Bề dày lõi, bề rộng mũ mở rộng, gia cường vỏ — khác nhau giữa cánh giữa (y ≤ 3.75 m) và cánh ngoài | xem vòng lặp |
 | `n_load` | Hệ số tải cho trọng lượng bản thân | 1 |
-| `m_tail`, `m_boom`, `F_tail`, ... | Khối lượng/lực từ đuôi, boom | 0 (chưa tính) |
 | `modeNumber_f` | Số dạng dao động cần lấy | 3 |
 
 Phân vùng xếp lớp vỏ theo y nằm ở đầu `cross_section_analysis_CW.m`: KV1 (y < 1.75), KV2 (y ≤ 3.75), cánh ngoài.
