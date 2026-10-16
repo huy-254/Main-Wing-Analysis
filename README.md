@@ -22,7 +22,7 @@ Kết quả: một figure 3D cho mỗi dạng dao động (mặc định 3 dạn
 ```
 main_CW.m
 ├── material_2D.m        tính chất lớp sợi carbon UD / woven (gọi ply.m, laminate.m, THstrength.m)
-├── HM80.m               tính chất lõi foam PVC
+├── PVD_Foam.m               tính chất lõi foam PVC
 ├── hình học cánh, vị trí sườn, airfoil, tải khí động
 ├── vòng lặp ii = n → 1 (đầu cánh → gốc cánh)
 │   └── cross_section_analysis_CW.m      (script, dùng chung workspace)
@@ -63,7 +63,7 @@ Vòng lặp chạy **từ đầu cánh về gốc** vì lực cắt `F_shear(ii)
 | File | Nội dung | Được dùng? |
 |---|---|---|
 | `material_2D.m` | Sợi AS4 + epoxy 3501-6 → lớp UD (`*_UD`) và woven (`*_woven`) | Có |
-| `HM80.m` | Lõi foam PVC (`*_core`) | Có |
+| `PVD_Foam.m` | Lõi foam PVC (`*_core`) | Có |
 | `RC200.m` | Sợi T700s + nền F201-10 | Không (phương án thay thế) |
 | `material_3D.m`, `ply_3D.m`, `laminate_3D.m`, `TWstrength_3D_chen2020.m` | Phiên bản 3D + tiêu chuẩn Tsai-Wu | Không (chưa gắn vào luồng chính) |
 
