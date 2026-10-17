@@ -329,17 +329,16 @@ m_airfoil(ii) = (sum(rho_skin.*t_layer_skin)*(sum(elem_length_u)+sum(elem_length
     sum(rho_cap_1_l.*t_layer_cap_1_l)*d_cap_1+...
     sum(rho_cap_2_u.*t_layer_cap_2_u)*d_cap_2+...
     sum(rho_cap_2_l.*t_layer_cap_2_l)*d_cap_2+...
-    sum(rho_side_cap_1.*t_layer_side_cap_1)/scale*d_side_cap_1*2+...
-    sum(rho_side_cap_2.*t_layer_side_cap_2)/scale*d_side_cap_2*2)*scale;
+    sum(rho_side_cap_1.*t_layer_side_cap_1)*d_side_cap_1*2+...
+    sum(rho_side_cap_2.*t_layer_side_cap_2)*d_side_cap_2*2)*scale;
 
 if reinf == 1
        m_airfoil(ii) = m_airfoil(ii)-sum(rho_skin.*t_layer_skin)/sum(t_layer_skin)*t_skin*(2*d_reinf_1+2*d_reinf_2)*scale^2+...
            sum(rho_skin_reinf.*t_layer_skin_reinf)/sum(t_layer_skin_reinf)*t_skin_reinf*(2*d_reinf_1+2*d_reinf_2)*scale^2;
 end
 
-xc_skin = (sum(rho_skin.*t_layer_skin)/sum(t_layer_skin)*t_skin*...
-    (sum(elem_length_u.*(.005:.01:.995))+sum(elem_length_l.*(.005:.01:.995))-...
-    2*(d_cap_1+d_side_cap_1)*x_spar_1 - 2*(d_cap_2+d_side_cap_2)*x_spar_2))*scale^2/m_airfoil(ii); 
+xc_skin = (sum(rho_skin.*t_layer_skin)*...
+    (sum(elem_length_u.*(.005:.01:.995))+sum(elem_length_l.*(.005:.01:.995))))*scale/m_airfoil(ii); 
     
 xc_spar_1 = (sum(rho_spar_1.*t_layer_spar_1)*h_spar_1 - rho_core*core_thickness_spar_1*(h_spar_1-h_foam_1))*x_spar_1*scale/m_airfoil(ii); 
     
@@ -361,8 +360,8 @@ xc_side_cap = (sum(rho_side_cap_1.*t_layer_side_cap_1)/scale*d_side_cap_1*2*x_sp
 xc_airfoil(ii) = xc_skin + xc_spar_1 + xc_spar_2 + xc_rib + xc_cap_1_u + xc_cap_1_l + xc_cap_2_u + xc_cap_2_l + xc_side_cap;
 
 if reinf == 1
-   xc_airfoil(ii) = xc_airfoil(ii)-sum(rho_skin.*t_layer_skin)/sum(t_layer_skin)*t_skin*(2*d_reinf_1*x_spar_1+2*d_reinf_2*x_spar_2)*scale^2/m_airfoil(ii)+...
-       sum(rho_skin_reinf.*t_layer_skin_reinf)/sum(t_layer_skin_reinf)*t_skin_reinf*(2*d_reinf_1*x_spar_1+2*d_reinf_2*x_spar_2)*scale^2/m_airfoil(ii);
+   xc_airfoil(ii) = xc_airfoil(ii)-sum(rho_skin.*t_layer_skin)*(2*d_reinf_1*x_spar_1+2*d_reinf_2*x_spar_2)*scale/m_airfoil(ii)+...
+       sum(rho_skin_reinf.*t_layer_skin_reinf)*(2*d_reinf_1*x_spar_1+2*d_reinf_2*x_spar_2)*scale/m_airfoil(ii);
 end
 
 %% Composite properties (Gibson Chap. 7)
@@ -502,11 +501,11 @@ I_cap_2_l = t_cap_2_l*d_cap_2*h2_l^2;
 
 %% Tinh moment quan tinh
 if reinf == 1
-    I1 = t_spar_1*h_spar_1^3/12 + t_spar_1*h_spar_1*(spar_1_up - h_spar_1/2 - z_E(ii))^2; % area moment of inertia Front spar
-    I2 = t_spar_2*h_spar_2^3/12 + t_spar_2*h_spar_2*(spar_2_up - h_spar_2/2 - z_E(ii))^2; % area moment of inertia Aft spar
+    I_spar_1 = t_spar_1*h_spar_1^3/12 + t_spar_1*h_spar_1*(spar_1_up - h_spar_1/2 - z_E(ii))^2; % area moment of inertia Front spar
+    I_spar_2 = t_spar_2*h_spar_2^3/12 + t_spar_2*h_spar_2*(spar_2_up - h_spar_2/2 - z_E(ii))^2; % area moment of inertia Aft spar
 else 
-    I1 = t_spar_1*h_spar_1^3/12 + t_spar_1*h_spar_1*(spar_1_up - h_spar_1/2 - z_E(ii))^2; % area moment of inertia Front spar
-    I2 = t_spar_2*h_spar_2^3/12 + t_spar_2*h_spar_2*(spar_2_up - h_spar_2/2 - z_E(ii))^2; % area moment of inertia Aft spar   
+    I_spar_1 = t_spar_1*h_spar_1^3/12 + t_spar_1*h_spar_1*(spar_1_up - h_spar_1/2 - z_E(ii))^2; % area moment of inertia Front spar
+    I_spar_2 = t_spar_2*h_spar_2^3/12 + t_spar_2*h_spar_2*(spar_2_up - h_spar_2/2 - z_E(ii))^2; % area moment of inertia Aft spar   
 end
 
 % Skin
@@ -578,8 +577,8 @@ if ii <= round(fix_loc/dy + 1)
 end
 
 %% Mean stress (Chizhov eq. 2.24)
-EI(ii) = (Ex_spar_1*I1+EI_cap_1_u/scale^4+EI_cap_1_l/scale^4+Ex_side_cap_1*(I_side_cap_1_u+I_side_cap_1_l)+...
-    Ex_spar_2*I2+EI_cap_2_u/scale^4+EI_cap_2_l/scale^4+Ex_side_cap_2*(I_side_cap_2_u+I_side_cap_2_l)+...
+EI(ii) = (Ex_spar_1*I_spar_1+EI_cap_1_u/scale^4+EI_cap_1_l/scale^4+Ex_side_cap_1*(I_side_cap_1_u+I_side_cap_1_l)+...
+    Ex_spar_2*I_spar_2+EI_cap_2_u/scale^4+EI_cap_2_l/scale^4+Ex_side_cap_2*(I_side_cap_2_u+I_side_cap_2_l)+...
     Ex_skin*I_skin)*scale^4; % bending rigidity
 
 if reinf ==1
@@ -629,8 +628,8 @@ sigma_u_side_cap_1 = bending_curvature*Ex_side_cap_1*(z_airfoil_u_1-z_E(ii))*sca
 sigma_l_side_cap_1 = bending_curvature*Ex_side_cap_1*(z_airfoil_l_1-z_E(ii))*scale; % stress at lower side_cap 1
 sigma_u_side_cap_2 = bending_curvature*Ex_side_cap_2*(z_airfoil_u_2-z_E(ii))*scale; % stress at upper side_cap 2
 sigma_l_side_cap_2 = bending_curvature*Ex_side_cap_2*(z_airfoil_l_2-z_E(ii))*scale; % stress at lower side_cap 2
-M_b_spar_1(ii) = bending_curvature*(Ex_spar_1*I1+EI_cap_1_u/scale^4+EI_cap_1_l/scale^4+Ex_side_cap_1*(I_side_cap_1_u+I_side_cap_1_l))*scale^4;
-M_b_spar_2(ii) = bending_curvature*(Ex_spar_2*I2+EI_cap_2_u/scale^4+EI_cap_2_l/scale^4+Ex_side_cap_2*(I_side_cap_2_u+I_side_cap_2_l))*scale^4;
+M_b_spar_1(ii) = bending_curvature*(Ex_spar_1*I_spar_1+EI_cap_1_u/scale^4+EI_cap_1_l/scale^4+Ex_side_cap_1*(I_side_cap_1_u+I_side_cap_1_l))*scale^4;
+M_b_spar_2(ii) = bending_curvature*(Ex_spar_2*I_spar_2+EI_cap_2_u/scale^4+EI_cap_2_l/scale^4+Ex_side_cap_2*(I_side_cap_2_u+I_side_cap_2_l))*scale^4;
 M_b_skin(ii) = bending_curvature*(Ex_skin*I_skin)*scale^4;
 
 %% Revised 26/9/2024
@@ -762,6 +761,9 @@ end
     delta_1, delta_2, delta_3, delta_1_2, delta_2_3, x_spar_1*scale, x_spar_2*scale, ...
     h_spar_1*scale, h_spar_2*scale, x_E(ii)*scale, M_t_incl_taper);
 
+% Transverse shear stiffness for Timoshenko beam theory
+kGA(ii) = shear_stiffness(q_b1,q_b2,delta_1,delta_2,delta_3,delta_1_2,delta_2_3,h_spar_1,h_spar_2,scale);
+
 % Mean shear stress
 Q = [q1/(t_skin*scale),q2/(t_skin*scale),q3/(t_skin*scale)];
 [~,I] = max(abs(Q)); % shear stress on skin
@@ -804,13 +806,13 @@ if reinf == 1
         2*(x_spar_2-x_E(ii))^2*d_reinf_2*t_skin_reinf;
 end
 
-%% Moment quan tinh khoi luong
+%% Moment quan tinh khoi luong (26/9/2024)
 % Rib: trong tam (phan cua day cung) va khoang cach toi truc dan hoi (x_E, z_E)
 x_rib = (x_spar_1+x_spar_2)/2;
 z_rib = (spar_1_up+spar_1_low+spar_2_up+spar_2_low)/4;
 d_rib_sq = (x_rib-x_E(ii))^2+(z_rib-z_E(ii))^2; % binh phuong khoang cach chuyen truc
-Im(ii) = ((I1+I1_y)*sum(rho_spar_1.*t_layer_spar_1)/sum(t_layer_spar_1)+...
-    (I2+I2_y)*sum(rho_spar_2.*t_layer_spar_2)/sum(t_layer_spar_2)+...
+Im(ii) = ((I_spar_1+I1_y)*sum(rho_spar_1.*t_layer_spar_1)/sum(t_layer_spar_1)+...
+    (I_spar_2+I2_y)*sum(rho_spar_2.*t_layer_spar_2)/sum(t_layer_spar_2)+...
     (I_cap_1_u+I_cap_1_u_y)*sum(rho_cap_1_u.*t_layer_cap_1_u)/sum(t_layer_cap_1_u)+...
     (I_cap_1_l+I_cap_1_l_y)*sum(rho_cap_1_l.*t_layer_cap_1_l)/sum(t_layer_cap_1_l)+...
     (I_cap_2_u+I_cap_2_u_y)*sum(rho_cap_2_u.*t_layer_cap_2_u)/sum(t_layer_cap_2_u)+...
@@ -819,10 +821,24 @@ Im(ii) = ((I1+I1_y)*sum(rho_spar_1.*t_layer_spar_1)/sum(t_layer_spar_1)+...
     (I_side_cap_2_u+I_side_cap_2_l+I_side_cap_2_y)*sum(rho_side_cap_2.*t_layer_side_cap_2)/sum(t_layer_side_cap_2)+...
     (I_skin+I_skin_y)*sum(rho_skin.*t_layer_skin)/sum(t_layer_skin))*scale^4+...
     sum(rho_rib.*t_layer_rib)/sum(t_layer_rib)*t_rib*(h_spar_1+h_spar_2)/2*(x_spar_2-x_spar_1)*(((h_spar_1+h_spar_2)^2/4+(x_spar_2-x_spar_1)^2)/12+d_rib_sq)*n_rib*scale^5;
-
-%% Revise 26/9/2024
 if reinf == 1
     Im(ii) = Im(ii)+(I_skin_reinf+I_skin_y_reinf)*sum(rho_skin_reinf.*t_layer_skin_reinf)/sum(t_layer_skin_reinf)*scale^4;
+end
+
+%% Moment quan tinh xoay cua mat cat quanh truc uon
+rhoI(ii) = (I_spar_1*sum(rho_spar_1.*t_layer_spar_1)/sum(t_layer_spar_1)+...
+    I_spar_2*sum(rho_spar_2.*t_layer_spar_2)/sum(t_layer_spar_2)+...
+    I_cap_1_u*sum(rho_cap_1_u.*t_layer_cap_1_u)/sum(t_layer_cap_1_u)+...
+    I_cap_1_l*sum(rho_cap_1_l.*t_layer_cap_1_l)/sum(t_layer_cap_1_l)+...
+    I_cap_2_u*sum(rho_cap_2_u.*t_layer_cap_2_u)/sum(t_layer_cap_2_u)+...
+    I_cap_2_l*sum(rho_cap_2_l.*t_layer_cap_2_l)/sum(t_layer_cap_2_l)+...
+    (I_side_cap_1_u+I_side_cap_1_l)*sum(rho_side_cap_1.*t_layer_side_cap_1)/sum(t_layer_side_cap_1)+...
+    (I_side_cap_2_u+I_side_cap_2_l)*sum(rho_side_cap_2.*t_layer_side_cap_2)/sum(t_layer_side_cap_2)+...
+    I_skin*sum(rho_skin.*t_layer_skin)/sum(t_layer_skin))*scale^4+...
+    sum(rho_rib.*t_layer_rib)/sum(t_layer_rib)*t_rib*(h_spar_1+h_spar_2)/2*(x_spar_2-x_spar_1)*...
+    ((h_spar_1+h_spar_2)^2/48+(z_rib-z_E(ii))^2)*n_rib*scale^5;
+if reinf == 1
+    rhoI(ii) = rhoI(ii)+I_skin_reinf*sum(rho_skin_reinf.*t_layer_skin_reinf)/sum(t_layer_skin_reinf)*scale^4;
 end
 
 %% Rib and spar compression

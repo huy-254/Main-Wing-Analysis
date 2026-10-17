@@ -15,6 +15,11 @@ GJ_full = mirror(GJ(:)');
 m_full = mirror(m_airfoil(:)');
 Im_full = mirror(Im(:)');
 
+% For Timoshenko beam
+% do cung cat ngang va mo ment quan tinh qua truc uon
+kGA_full  = mirror(kGA(:)');
+rhoI_full = mirror(rhoI(:)');
+
 elementLength = dy;
 numberElements = length(y_full)-1;
 GDof = 3*(numberElements+1);
@@ -30,6 +35,9 @@ e = (avg(xc_full)-avg(x_E_full)).*avg(c_full); % do lech tam (m), theo day cung 
 %stiffess matrix and mass matrix
 [stiffness,mass]=...
     BernoulliBeam(GDof, numberElements, elementLength, EI_elem, m_elem, GJ_elem, Im_elem, e);
+
+% [stiffness,mass] = TimoshenkoBeam(GDof, numberElements, elementLength, EI_elem, m_elem, ...
+%     GJ_elem, Im_elem, e, avg(kGA_full), avg(rhoI_full));
 
 %boundary conditions and solution
 % Lien ket voi than tai y = +-fix_loc: khoa vong w va goc xoan phi
