@@ -1,9 +1,9 @@
 %................................................................
 function [stiffness,mass] = ...
-    TimoshenkoBeam(GDof,numberElements,LElem,EI,rhoA,GIp,Im,e,kGA,rhoI)
+    TimoshenkoBeam(GDof,numberElements,LElem,EI,rhoA,GIp,Im,e,EIz,EIxz,ez,kGA,rhoI)
 % Dam Timoshenko uon - xoan (cung cach dung voi BernoulliBeam)
-%   Bac tu do moi nut: [w theta phi] (do vong, goc xoay uon, goc xoan)
-%   EI, rhoA, GIp, Im, e : nhu BernoulliBeam (gia tri tren tung phan tu)
+%   Bac tu do moi nut: [w theta phi u psi] (nhu BernoulliBeam)
+%   EI, rhoA, GIp, Im, e, EIz, EIxz, ez : nhu BernoulliBeam (gia tri tren tung phan tu)
 %   kGA  : do cung cat ngang hieu dung kappa*G*A (N), Inf -> bo qua bien dang cat
 %   rhoI : quan tinh xoay cua mat cat quanh truc uon (kg.m), = sum(rho*z^2*dA)
 %
@@ -11,11 +11,13 @@ function [stiffness,mass] = ...
 %   1993): khong bi khoa cat (shear locking), cho chuyen vi tinh chinh xac tai nut.
 %   Voi kGA = Inf va rhoI = 0, ma tran trung khop BernoulliBeam.
 %   Ky hieu Phi = 12*EI/(kGA*L^2).
+%   Bien dang cat chi ke cho uon dung; uon ngang theo Euler-Bernoulli (ham dang
+%   Hermite). So hang EIxz dung w'' Hermite nen la gan dung khi kGA huu han.
 
-if nargin < 9 || isempty(kGA)
+if nargin < 12 || isempty(kGA)
     kGA = Inf(size(EI));
 end
-if nargin < 10 || isempty(rhoI)
+if nargin < 13 || isempty(rhoI)
     rhoI = zeros(size(EI));
 end
 if isscalar(kGA),  kGA  = kGA*ones(size(EI));  end
@@ -26,7 +28,10 @@ stiffness = zeros(GDof);
 L = LElem;
 for j = 1:numberElements
     % elementDof: element degrees of freedom (Dof)
-    elementDof = (j*3-2:(j+1)*3);
+    elementDof = (j*5-4:(j+1)*5);
+    iw = elementDof([1 2 6 7]);  % w, theta
+    ip = elementDof([3 8]);      % phi
+    iu = elementDof([4 5 9 10]); % u, psi
     p = 12*EI(j)/(kGA(j)*L^2);   % Phi = 0 khi kGA = Inf
 
     % Do cung uon + cat
@@ -64,17 +69,34 @@ for j = 1:numberElements
                                 (10*p+9)/60        (20*p+21)/60;
                                 -(5*p+4)*L/120     -(5*p+6)*L/120];
 
+    % Uon ngang (Euler-Bernoulli) va uon xien
+    H = 1/L^3*[12   6*L    -12  6*L;
+               6*L  4*L^2  -6*L 2*L^2;
+               -12  -6*L   12   -6*L;
+               6*L  2*L^2  -6*L 4*L^2];
+    k3 = EIz(j)*H;
+    k4 = EIxz(j)*H;
+    m4 = rhoA(j)*L/420*[156    22*L    54     -13*L;
+                        22*L   4*L^2   13*L   -3*L^2;
+                        54     13*L    156    -22*L;
+                        -13*L  -3*L^2  -22*L  4*L^2];
+    % Lien ket quan tinh uon ngang - xoan (do lech tam ez)
+    m5 = -rhoA(j)*ez(j)*L*[7/20    3/20;
+                           L/20    L/30;
+                           3/20    7/20;
+                           -L/30   -L/20];
+
     % stiffness and mass matrices
-    stiffness(elementDof([1 2 4 5]),elementDof([1 2 4 5])) = ...
-        stiffness(elementDof([1 2 4 5]),elementDof([1 2 4 5])) + k1;
-    stiffness(elementDof([3 6]),elementDof([3 6])) = ...
-        stiffness(elementDof([3 6]),elementDof([3 6])) + k2;
-    mass(elementDof([1 2 4 5]),elementDof([1 2 4 5])) = ...
-        mass(elementDof([1 2 4 5]),elementDof([1 2 4 5])) + m1;
-    mass(elementDof([3 6]),elementDof([3 6])) = ...
-        mass(elementDof([3 6]),elementDof([3 6])) + m2;
-    mass(elementDof([1 2 4 5]),elementDof([3 6])) = ...
-        mass(elementDof([1 2 4 5]),elementDof([3 6])) + m3;
-    mass(elementDof([3 6]),elementDof([1 2 4 5])) = ...
-        mass(elementDof([3 6]),elementDof([1 2 4 5])) + m3';
+    stiffness(iw,iw) = stiffness(iw,iw) + k1;
+    stiffness(ip,ip) = stiffness(ip,ip) + k2;
+    stiffness(iu,iu) = stiffness(iu,iu) + k3;
+    stiffness(iw,iu) = stiffness(iw,iu) + k4;
+    stiffness(iu,iw) = stiffness(iu,iw) + k4;
+    mass(iw,iw) = mass(iw,iw) + m1;
+    mass(ip,ip) = mass(ip,ip) + m2;
+    mass(iu,iu) = mass(iu,iu) + m4;
+    mass(iw,ip) = mass(iw,ip) + m3;
+    mass(ip,iw) = mass(ip,iw) + m3';
+    mass(iu,ip) = mass(iu,ip) + m5;
+    mass(ip,iu) = mass(ip,iu) + m5';
 end

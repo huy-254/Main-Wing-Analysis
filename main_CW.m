@@ -161,8 +161,8 @@ for ii=n:-1:1
         d_side_cap_1 = 0.012/scale; % front side cap width (fraction of chord length)
         d_side_cap_2 = 0.012/scale; % aft side cap width (fraction of chord length)
         reinf = 1; % skin reinforcement
-        d_reinf_1 = .050;
-        d_reinf_2 = .047;
+        d_reinf_1 = .050/scale;
+        d_reinf_2 = .047/scale;
     end
     rib_spacing = rib_spacing_3(ii);
     cross_section_analysis_CW;
@@ -170,30 +170,31 @@ end
 
 
 % FEM analysis
-modeNumber_f = 6;
+modeNumber_f = 8;
 coupled_beam
 
-% In tan so cac mode doi xung dau tien (bo qua mode phan doi xung)
-id_sym = find(mode_type == "doi xung");
-id_sym = id_sym(1:min(floor(modeNumber_f/2), numel(id_sym)));
-fprintf('Tan so cac mode doi xung:\n');
-for kk = 1:numel(id_sym)
-    fprintf('  Mode %d (mode so %d): %.3f Hz\n', kk, id_sym(kk), Df(id_sym(kk)));
+% In tan so, kieu doi xung va dang dao dong chiem uu the cua tung mode
+fprintf('Tan so rieng (ty le dong nang uon dung / xoan / uon ngang):\n');
+for kk = 1:modeNumber_f
+    fprintf('  Mode %d: %8.3f Hz  %-14s %-10s (%3.0f%% / %3.0f%% / %3.0f%%)\n', kk, Df(kk),...
+        mode_type(kk), mode_kind(kk), 100*mode_energy(:,kk));
 end
 fprintf('\n');
 fprintf('Tong khoi luong canh: %.3f kg\n', sum(m_full*dy));
 
 % Ve mode shape
-% Moi mat cat (day cung) xoay quanh truc dan hoi (tam cung x_E) mot goc phi
-% va tinh tien theo phuong z mot doan w. Truc x huong ve phia truoc, mep sau
-% nam tai x_LE - c. Khoang cach co dau tu truc dan hoi den mep truoc / mep sau:
+% Moi mat cat (day cung) xoay quanh truc dan hoi (tam cung x_E) mot goc phi,
+% tinh tien theo phuong z mot doan w va theo phuong x mot doan u. Truc x huong
+% ve phia truoc, mep sau nam tai x_LE - c. Khoang cach co dau tu truc dan hoi
+% den mep truoc / mep sau:
 %   d_LE = x_E*c,  d_TE = -(1-x_E)*c
-% Toa do sau bien dang (phi > 0: mep truoc di xuong, mep sau di len):
-%   x = x_EA + d*cos(phi),  z = w - d*sin(phi)
+% Toa do sau bien dang (cung quy uoc dau voi so hang lien ket quan tinh -rhoA*e
+% trong BernoulliBeam: phi > 0: mep truoc di len, mep sau di xuong):
+%   x = x_EA + u + d*cos(phi),  z = w + d*sin(phi)
 % Vector rieng co bien do tuy y nen nhan ca vector voi 1 he so ty le chung
-% (giu nguyen ty le w/phi cua mode) sao cho max|w| <= w_plot_max va
+% (giu nguyen ty le w/u/phi cua mode) sao cho max(|w|,|u|) <= w_plot_max va
 % max|phi| <= phi_plot_max.
-w_plot_max = 0.1*max(y_full);  % do vong lon nhat khi ve (m)
+w_plot_max = 0.1*max(y_full);  % chuyen vi lon nhat khi ve (m)
 phi_plot_max = 30*pi/180;      % goc xoan lon nhat khi ve (rad)
 
 x_EA_full = x_LE_full - x_E_full.*c_full; % toa do x cua truc dan hoi
@@ -206,27 +207,31 @@ for kk = 1:modeNumber_f
     figure
     hold on
     mode_deflec = Vf(:,kk);
-    w_mode = mode_deflec(1:3:end)';
-    phi_mode = mode_deflec(3:3:end)';
-    scale_mode = min(w_plot_max/max(max(abs(w_mode)),eps),...
+    w_mode = mode_deflec(1:5:end)';
+    phi_mode = mode_deflec(3:5:end)';
+    u_mode = mode_deflec(4:5:end)';
+    scale_mode = min(w_plot_max/max(max(abs([w_mode u_mode])),eps),...
         phi_plot_max/max(max(abs(phi_mode)),eps));
     w_mode = scale_mode*w_mode;
     phi_mode = scale_mode*phi_mode;
+    u_mode = scale_mode*u_mode;
 
     % Toa do mep truoc, mep sau sau bien dang
-    x_LE_def = x_EA_full + d_LE.*cos(phi_mode);
-    z_LE_def = w_mode - d_LE.*sin(phi_mode);
-    x_TE_def = x_EA_full + d_TE.*cos(phi_mode);
-    z_TE_def = w_mode - d_TE.*sin(phi_mode);
+    x_LE_def = x_EA_full + u_mode + d_LE.*cos(phi_mode);
+    z_LE_def = w_mode + d_LE.*sin(phi_mode);
+    x_TE_def = x_EA_full + u_mode + d_TE.*cos(phi_mode);
+    z_TE_def = w_mode + d_TE.*sin(phi_mode);
 
     % Hinh dang canh chua bien dang (tham chieu)
     plot3(x_LE_full, y_full, zeros(size(y_full)), '--', 'Color', [.6 .6 .6])
     plot3(x_LE_full-c_full, y_full, zeros(size(y_full)), '--', 'Color', [.6 .6 .6])
 
-    % Be mat canh sau bien dang, to mau theo gia tri tuyet doi cua chuyen vi
-    % phuong z tai tung diem (z ban dau = 0, da gom ca anh huong cua goc xoan).
+    % Be mat canh sau bien dang, to mau theo do lon chuyen vi toan phan
+    % sqrt(ux^2+uz^2) tai tung diem (giong Total Deformation cua ANSYS; z ban
+    % dau = 0, da gom ca anh huong cua goc xoan).
     % Hang 1: mep truoc, hang 2: mep sau; mau noi suy doc theo day cung
-    uz_abs = abs([z_LE_def; z_TE_def]);
+    uz_abs = sqrt(([x_LE_def; x_TE_def]-[x_LE_full; x_LE_full-c_full]).^2 +...
+        [z_LE_def; z_TE_def].^2);
     surf([x_LE_def; x_TE_def], [y_full; y_full], [z_LE_def; z_TE_def], uz_abs,...
         'FaceColor', 'interp', 'EdgeColor', 'none')
     colormap(cmap_contour)
@@ -241,10 +246,11 @@ for kk = 1:modeNumber_f
     w_labels{1} = [w_labels{1} ' Min'];
     w_labels{end} = [w_labels{end} ' Max'];
     cb = colorbar('Ticks', w_ticks, 'TickLabels', w_labels);
-    cb.Label.String = '|u_z| (m)';
+    cb.Label.String = '|u| (m)';
 
     xlabel('x (m)'); ylabel('y (m)'); zlabel('z (m)')
-    title(['Mode shape so ', num2str(kk), ', tan so ', num2str(Df(kk)), 'Hz'], 'FontSize', 18)
+    title(['Mode shape so ', num2str(kk), ', tan so ', num2str(Df(kk)), 'Hz (',...
+        char(mode_kind(kk)), ', ', char(mode_type(kk)), ')'], 'FontSize', 18)
     axis equal tight
     axis off
     view(-55,30) % nhin tu phia sau (-x) ra phia truoc
@@ -252,15 +258,20 @@ for kk = 1:modeNumber_f
 end
 
 %% Xuat thong so dam tuong duong cua toan canh ra file txt
-% x_E, x_C: tinh theo phan day cung, tu mep truoc ve phia sau
+% x_E, x_C, x_N: tinh theo phan day cung, tu mep truoc ve phia sau
 % (toa do x tuyet doi = x_LE - x_E*c)
+% EI: uon dung (quanh truc x), EI_z: uon ngang (quanh truc z), EI_xz: uon xien
+% z_E, z_C: z cua truc trung hoa va trong tam (phan day cung, he toa do airfoil)
 EA_full = mirror(EA(:)');
+x_N_full = mirror(x_N(:)');
 beam_data = [y_full; c_full; x_LE_full; EI_full; GJ_full; EA_full;...
-    m_full; Im_full; x_E_full; xc_full]';
+    m_full; Im_full; x_E_full; xc_full; EI_z_full; EI_xz_full; x_N_full; z_E_full; zc_full]';
 fid = fopen('equivalent_beam_full_wing.txt', 'w');
-fprintf(fid, '%12s %12s %12s %14s %14s %14s %12s %12s %12s %12s\n',...
-    'y', 'c', 'x_LE', 'EI', 'GJ', 'EA', 'm', 'Im', 'x_E', 'x_C');
-fprintf(fid, '%12s %12s %12s %14s %14s %14s %12s %12s %12s %12s\n',...
-    '(m)', '(m)', '(m)', '(N.m^2)', '(N.m^2)', '(N)', '(kg/m)', '(kg.m)', '(-/c)', '(-/c)');
-fprintf(fid, '%12.4f %12.4f %12.4f %14.6e %14.6e %14.6e %12.6f %12.6e %12.6f %12.6f\n', beam_data');
+fprintf(fid, '%12s %12s %12s %14s %14s %14s %12s %12s %12s %12s %14s %14s %12s %12s %12s\n',...
+    'y', 'c', 'x_LE', 'EI', 'GJ', 'EA', 'm', 'Im', 'x_E', 'x_C', 'EI_z', 'EI_xz', 'x_N', 'z_E', 'z_C');
+fprintf(fid, '%12s %12s %12s %14s %14s %14s %12s %12s %12s %12s %14s %14s %12s %12s %12s\n',...
+    '(m)', '(m)', '(m)', '(N.m^2)', '(N.m^2)', '(N)', '(kg/m)', '(kg.m)', '(-/c)', '(-/c)',...
+    '(N.m^2)', '(N.m^2)', '(-/c)', '(-/c)', '(-/c)');
+fprintf(fid, ['%12.4f %12.4f %12.4f %14.6e %14.6e %14.6e %12.6f %12.6e %12.6f %12.6f',...
+    ' %14.6e %14.6e %12.6f %12.6f %12.6f\n'], beam_data');
 fclose(fid);

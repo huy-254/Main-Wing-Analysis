@@ -3,7 +3,7 @@
 Bộ script MATLAB tính kết cấu cánh chính composite của UAV theo mô hình **dầm tương đương**:
 
 1. Với từng mặt cắt dọc sải cánh: tính đặc trưng mặt cắt (khối lượng, EI, GJ, mômen quán tính khối lượng Im, tâm cứng x_E, trọng tâm xc), nội lực và hệ số an toàn (HSAT) của từng chi tiết.
-2. Ghép các mặt cắt thành dầm uốn–xoắn liên kết cho **toàn bộ cánh** (đối xứng qua y = 0), giải FEM để lấy tần số riêng, dạng dao động và độ võng tĩnh.
+2. Ghép các mặt cắt thành dầm uốn–xoắn liên kết cho **toàn bộ cánh** (đối xứng qua y = 0), gồm uốn đứng (theo z), uốn ngang trong mặt phẳng dây cung (quanh trục z) và xoắn; giải FEM để lấy tần số riêng, dạng dao động và độ võng tĩnh.
 
 > Thư mục này là **bản sao** được tạo trước khi cắt bỏ phần cánh ghép nối với thân và booms (xem `readme.txt`).
 
@@ -15,7 +15,7 @@ Mở MATLAB, chuyển thư mục làm việc về thư mục này rồi chạy:
 main_CW
 ```
 
-Kết quả: một figure 3D cho mỗi dạng dao động (mặc định 3 dạng, `modeNumber_f` trong `main_CW.m`), tiêu đề ghi tần số riêng (Hz). Các biến kết quả nằm trong workspace (xem [Biến kết quả chính](#biến-kết-quả-chính)).
+Kết quả: một figure 3D cho mỗi dạng dao động (mặc định 8 dạng, `modeNumber_f` trong `main_CW.m`), tiêu đề ghi tần số riêng (Hz). Các biến kết quả nằm trong workspace (xem [Biến kết quả chính](#biến-kết-quả-chính)).
 
 ## Luồng tính toán
 
@@ -50,7 +50,7 @@ Vòng lặp chạy **từ đầu cánh về gốc** vì lực cắt `F_shear(ii)
 
 | File | Vai trò |
 |---|---|
-| `BernoulliBeam.m` | Ma trận độ cứng và khối lượng của phần tử dầm Euler-Bernoulli uốn + xoắn, có số hạng liên kết quán tính uốn–xoắn qua độ lệch tâm `e`. Mỗi nút có 3 bậc tự do: `[w, w', φ]`. |
+| `BernoulliBeam.m` | Ma trận độ cứng và khối lượng của phần tử dầm Euler-Bernoulli uốn đứng + uốn ngang + xoắn. Mỗi nút có 5 bậc tự do: `[w, w', φ, u, u']`. Có liên kết độ cứng uốn xiên `EI_xz` và liên kết quán tính uốn–xoắn qua độ lệch tâm `e` (theo dây cung) và `e_z` (theo z). `TimoshenkoBeam.m` dùng cùng cách gọi, thêm biến dạng cắt cho uốn đứng. |
 | `laminate.m` | Ma trận A, D của tấm composite nhiều lớp (Gibson ch. 7). |
 | `ply.m` | Tính chất lớp UD từ sợi + nền (cơ học vi mô, Gibson). |
 | `THstrength.m` | Hệ số an toàn theo tiêu chuẩn Tsai-Hill cho từng lớp. |
@@ -91,7 +91,7 @@ Xếp lớp trong `cross_section_analysis_CW.m` được viết dạng chuỗi, 
 | `x_spar_1`, `x_spar_2` | Vị trí dầm trước/sau (phần dây cung) | 0.221; 0.711 |
 | `core_thickness_*`, `d_side_cap_*`, `reinf`, `d_reinf_*` | Bề dày lõi, bề rộng mũ mở rộng, gia cường vỏ — khác nhau giữa cánh giữa (y ≤ 3.75 m) và cánh ngoài | xem vòng lặp |
 | `n_load` | Hệ số tải cho trọng lượng bản thân | 1 |
-| `modeNumber_f` | Số dạng dao động cần lấy | 3 |
+| `modeNumber_f` | Số dạng dao động cần lấy | 8 |
 
 Phân vùng xếp lớp vỏ theo y nằm ở đầu `cross_section_analysis_CW.m`: KV1 (y < 1.75), KV2 (y ≤ 3.75), cánh ngoài.
 
@@ -102,7 +102,9 @@ Theo nửa cánh phải, chỉ số `ii` ứng với `y_coord(ii)`:
 | Biến | Ý nghĩa |
 |---|---|
 | `m_airfoil` | Khối lượng trên đơn vị dài (kg/m) |
-| `EI`, `GJ` | Độ cứng uốn, độ cứng xoắn |
+| `EI`, `GJ` | Độ cứng uốn đứng (quanh trục x), độ cứng xoắn |
+| `EI_z`, `EI_xz` | Độ cứng uốn ngang (quanh trục z), độ cứng uốn xiên giữa hai mặt phẳng |
+| `x_N`, `z_E`, `zc_airfoil` | Trục trung hòa theo phương dây cung, trục trung hòa theo z, cao độ trọng tâm (phần dây cung) |
 | `Im` | Mômen quán tính khối lượng xoắn |
 | `x_E`, `xc_airfoil` | Tâm cứng, trọng tâm (phần dây cung tính từ mép trước) |
 | `F_shear`, `M_b`, `M_t` | Lực cắt, mômen uốn, mômen xoắn |
@@ -114,7 +116,8 @@ Theo toàn cánh (`coupled_beam.m`), nút trung tâm y = 0 có chỉ số `n_hal
 |---|---|
 | `y_full`, `c_full`, `x_E_full`, ... | Dữ liệu đã lấy đối xứng |
 | `Df` | Tần số riêng (Hz), tăng dần |
-| `Vf` | Dạng dao động; nút `i` có `w = Vf(3i-2)`, `w' = Vf(3i-1)`, `φ = Vf(3i)` |
+| `Vf` | Dạng dao động; nút `i` có `w = Vf(5i-4)`, `w' = Vf(5i-3)`, `φ = Vf(5i-2)`, `u = Vf(5i-1)`, `u' = Vf(5i)` (`u` theo phương x, hướng về phía trước) |
+| `mode_type`, `mode_kind`, `mode_energy` | Đối xứng / phản đối xứng; dạng chiếm ưu thế (uốn đứng / xoắn / uốn ngang) và tỷ lệ động năng tương ứng |
 | `deflection` | Chuyển vị tĩnh dưới tải, cùng cách đánh chỉ số |
 
 ## Lưu ý

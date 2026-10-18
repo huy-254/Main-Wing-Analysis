@@ -429,11 +429,6 @@ Ex_cap_1_l = 1/S_lam_cap_1_l(1,1); % Gibson Eq. 2.25
 % Ey_cap_1_l = 1/S_lam_cap_1_l(2,2);
 % G_cap_1_l = 1/S_lam_cap_1_l(3,3);
 
-% h1_u = ((h_spar_1-t_cap_1_u/2/cos(slope_u_1)-t_cap_1_l/2/cos(slope_l_1))*sqrt(Ex_cap_1_l*t_cap_1_l)/...
-%     (sqrt(Ex_cap_1_u*t_cap_1_u)+sqrt(Ex_cap_1_l*t_cap_1_l)))*scale;
-% h1_l = ((h_spar_1-t_cap_1_u/2/cos(slope_u_1)-t_cap_1_l/2/cos(slope_l_1))*sqrt(Ex_cap_1_u*t_cap_1_u)/...
-%     (sqrt(Ex_cap_1_u*t_cap_1_u)+sqrt(Ex_cap_1_l*t_cap_1_l)))*scale;
-
 % Spar cap 2
 [A_lam_cap_2_u, ~] = laminate(E1_layer_cap_2_u,E2_layer_cap_2_u,theta_layer_cap_2_u,t_layer_cap_2_u,...
     G12_layer_cap_2_u,nju_layer_cap_2_u,0); 
@@ -450,11 +445,6 @@ S_lam_cap_2_l = inv(Q_lam_cap_2_l);
 Ex_cap_2_l = 1/S_lam_cap_2_l(1,1); % Gibson Eq. 2.25
 % Ey_cap_2_l = 1/S_lam_cap_2_l(2,2);
 % G_cap_2_l = 1/S_lam_cap_2_l(3,3);
-
-% h2_u = ((h_spar_2-t_cap_2_u/2/cos(slope_u_2)-t_cap_2_l/2/cos(slope_l_2))*sqrt(Ex_cap_2_l*t_cap_2_l)/...
-%     (sqrt(Ex_cap_2_u*t_cap_2_u)+sqrt(Ex_cap_2_l*t_cap_2_l)))*scale;
-% h2_l = ((h_spar_2-t_cap_2_u/2/cos(slope_u_2)-t_cap_2_l/2/cos(slope_l_2))*sqrt(Ex_cap_2_u*t_cap_2_u)/...
-%     (sqrt(Ex_cap_2_u*t_cap_2_u)+sqrt(Ex_cap_2_l*t_cap_2_l)))*scale;
 
 % Spar side_cap 1
 [A_lam_side_cap_1, D_lam_side_cap_1] = laminate(E1_layer_side_cap_1,E2_layer_side_cap_1,theta_layer_side_cap_1,t_layer_side_cap_1,...
@@ -482,10 +472,50 @@ z_cap_2_u = spar_2_up  - t_cap_2_u/2/cos(slope_u_2);
 z_cap_2_l = spar_2_low + t_cap_2_l/2/cos(slope_l_2);
 
 % z-coordinate of truc trung hoa
-z_E(ii) = (z_cap_1_u*Ex_cap_1_u*d_cap_1*t_cap_1_u + z_cap_1_l*Ex_cap_1_l*d_cap_1*t_cap_1_l +...
-    z_cap_2_u*Ex_cap_2_u*d_cap_2*t_cap_2_u + z_cap_2_l*Ex_cap_2_l*d_cap_2*t_cap_2_l)/...
-    (Ex_cap_1_u*d_cap_1*t_cap_1_u + Ex_cap_1_l*d_cap_1*t_cap_1_l+...
-    Ex_cap_2_u*d_cap_2*t_cap_2_u + Ex_cap_2_l*d_cap_2*t_cap_2_l);
+% z_E(ii) = (z_cap_1_u*Ex_cap_1_u*d_cap_1*t_cap_1_u + z_cap_1_l*Ex_cap_1_l*d_cap_1*t_cap_1_l +...
+%     z_cap_2_u*Ex_cap_2_u*d_cap_2*t_cap_2_u + z_cap_2_l*Ex_cap_2_l*d_cap_2*t_cap_2_l)/...
+%     (Ex_cap_1_u*d_cap_1*t_cap_1_u + Ex_cap_1_l*d_cap_1*t_cap_1_l+...
+%     Ex_cap_2_u*d_cap_2*t_cap_2_u + Ex_cap_2_l*d_cap_2*t_cap_2_l);
+
+% update lai cach tinh truc trung hoa (18/10/2026)
+% Truc trung hoa: trong tam co trong so Ex*A cua TOAN BO mat cat
+% Mat giua vo: lui vao trong t_skin/2 theo phap tuyen (elem_length/.01 = 1/cos(slope))
+z_skin_u = (up(2:end)+up(1:end-1))/2 - t_skin/2*elem_length_u/.01;
+z_skin_l = (lp(2:end)+lp(1:end-1))/2 + t_skin/2*elem_length_l/.01;
+% Side cap: nam ngay duoi vo, cung muc voi mat tham chieu cua cap
+z_side_cap_1_u = spar_1_up  + t_side_cap_1/2/cos(slope_u_1);
+z_side_cap_1_l = spar_1_low - t_side_cap_1/2/cos(slope_l_1);
+z_side_cap_2_u = spar_2_up  + t_side_cap_2/2/cos(slope_u_2);
+z_side_cap_2_l = spar_2_low - t_side_cap_2/2/cos(slope_l_2);
+
+EAz = (z_cap_1_u*Ex_cap_1_u*t_cap_1_u + z_cap_1_l*Ex_cap_1_l*t_cap_1_l)*d_cap_1 + ...
+      (z_cap_2_u*Ex_cap_2_u*t_cap_2_u + z_cap_2_l*Ex_cap_2_l*t_cap_2_l)*d_cap_2 + ...
+      Ex_spar_1*t_spar_1*h_spar_1*(spar_1_low + h_spar_1/2) + ...
+      Ex_spar_2*t_spar_2*h_spar_2*(spar_2_low + h_spar_2/2) + ...
+      Ex_side_cap_1*t_side_cap_1*d_side_cap_1*(z_side_cap_1_u + z_side_cap_1_l) + ...
+      Ex_side_cap_2*t_side_cap_2*d_side_cap_2*(z_side_cap_2_u + z_side_cap_2_l) + ...
+      Ex_skin*t_skin*(sum(elem_length_u.*z_skin_u) + sum(elem_length_l.*z_skin_l));
+EAs = (Ex_cap_1_u*t_cap_1_u + Ex_cap_1_l*t_cap_1_l)*d_cap_1 + ...
+      (Ex_cap_2_u*t_cap_2_u + Ex_cap_2_l*t_cap_2_l)*d_cap_2 + ...
+      Ex_spar_1*t_spar_1*h_spar_1 + Ex_spar_2*t_spar_2*h_spar_2 + ...
+      2*Ex_side_cap_1*t_side_cap_1*d_side_cap_1 + 2*Ex_side_cap_2*t_side_cap_2*d_side_cap_2 + ...
+      Ex_skin*t_skin*(sum(elem_length_u) + sum(elem_length_l));
+if reinf == 1
+    % Dai gia cuong rong d_reinf tren MOI mat (giong m_airfoil, EA, delta_1..3)
+    z_reinf_u_1 = z_airfoil_u_1 - t_skin_reinf/2/cos(slope_u_1);
+    z_reinf_l_1 = z_airfoil_l_1 + t_skin_reinf/2/cos(slope_l_1);
+    z_reinf_u_2 = z_airfoil_u_2 - t_skin_reinf/2/cos(slope_u_2);
+    z_reinf_l_2 = z_airfoil_l_2 + t_skin_reinf/2/cos(slope_l_2);
+    z_sk_u_1 = z_airfoil_u_1 - t_skin/2/cos(slope_u_1);   % phan vo thuong bi thay the
+    z_sk_l_1 = z_airfoil_l_1 + t_skin/2/cos(slope_l_1);
+    z_sk_u_2 = z_airfoil_u_2 - t_skin/2/cos(slope_u_2);
+    z_sk_l_2 = z_airfoil_l_2 + t_skin/2/cos(slope_l_2);
+    EAz = EAz + d_reinf_1*(Ex_skin_reinf*t_skin_reinf*(z_reinf_u_1+z_reinf_l_1) - Ex_skin*t_skin*(z_sk_u_1+z_sk_l_1)) + ...
+                d_reinf_2*(Ex_skin_reinf*t_skin_reinf*(z_reinf_u_2+z_reinf_l_2) - Ex_skin*t_skin*(z_sk_u_2+z_sk_l_2));
+    EAs = EAs + 2*d_reinf_1*(Ex_skin_reinf*t_skin_reinf - Ex_skin*t_skin) + ...
+                2*d_reinf_2*(Ex_skin_reinf*t_skin_reinf - Ex_skin*t_skin);
+end
+z_E(ii) = EAz/EAs;
 
 h1_u = z_cap_1_u - z_E(ii);
 h1_l = z_E(ii) - z_cap_1_l;
@@ -509,21 +539,18 @@ else
 end
 
 % Skin
-I_skin = sum((elem_length_u*t_skin).*((up(2:end)+up(1:end-1))/2-z_E(ii)).^2)+...
-    sum((elem_length_l*t_skin).*((lp(2:end)+lp(1:end-1))/2-z_E(ii)).^2);
-
+I_skin = sum((elem_length_u*t_skin).*(z_skin_u-z_E(ii)).^2)+...
+    sum((elem_length_l*t_skin).*(z_skin_l-z_E(ii)).^2);
 if reinf == 1
-    I_skin = I_skin-((z_airfoil_u_1-z_E(ii))^2+(z_airfoil_l_1-z_E(ii))^2)*2*d_reinf_1*t_skin-...
-        ((z_airfoil_u_2-z_E(ii))^2+(z_airfoil_l_2-z_E(ii))^2)*2*d_reinf_2*t_skin;
-    I_skin_reinf = ((z_airfoil_u_1-z_E(ii))^2+(z_airfoil_l_1-z_E(ii))^2)*2*d_reinf_1*t_skin_reinf+...
-        ((z_airfoil_u_2-z_E(ii))^2+(z_airfoil_l_2-z_E(ii))^2)*2*d_reinf_2*t_skin_reinf;
+    I_skin = I_skin - t_skin*(d_reinf_1*((z_sk_u_1-z_E(ii))^2+(z_sk_l_1-z_E(ii))^2) + ...
+                              d_reinf_2*((z_sk_u_2-z_E(ii))^2+(z_sk_l_2-z_E(ii))^2));
+    I_skin_reinf = t_skin_reinf*(d_reinf_1*((z_reinf_u_1-z_E(ii))^2+(z_reinf_l_1-z_E(ii))^2) + ...
+                                 d_reinf_2*((z_reinf_u_2-z_E(ii))^2+(z_reinf_l_2-z_E(ii))^2));
 end
-
-% side caps
-I_side_cap_1_u = t_side_cap_1*d_side_cap_1*(z_airfoil_u_1-z_E(ii))^2;
-I_side_cap_1_l = t_side_cap_1*d_side_cap_1*(z_airfoil_l_1-z_E(ii))^2;
-I_side_cap_2_u = t_side_cap_2*d_side_cap_2*(z_airfoil_u_2-z_E(ii))^2;
-I_side_cap_2_l = t_side_cap_2*d_side_cap_2*(z_airfoil_l_2-z_E(ii))^2;
+I_side_cap_1_u = t_side_cap_1*d_side_cap_1*(z_side_cap_1_u-z_E(ii))^2;
+I_side_cap_1_l = t_side_cap_1*d_side_cap_1*(z_side_cap_1_l-z_E(ii))^2;
+I_side_cap_2_u = t_side_cap_2*d_side_cap_2*(z_side_cap_2_u-z_E(ii))^2;
+I_side_cap_2_l = t_side_cap_2*d_side_cap_2*(z_side_cap_2_l-z_E(ii))^2;
 
 if reinf == 0
     [~, D_lam_cap_1_u] = laminate(E1_layer_cap_1_u,E2_layer_cap_1_u,theta_layer_cap_1_u,t_layer_cap_1_u,...
@@ -596,6 +623,47 @@ if reinf == 1
     EA(ii) = EA(ii)+(Ex_skin_reinf*t_skin_reinf-Ex_skin*t_skin)*(2*d_reinf_1+2*d_reinf_2)*scale^2;
 end
 
+%% Uon ngang trong mat phang day cung (quanh truc z)
+% Cung cac chi tiet nhu EAs. Moi dong cua sec_z: [Ex*A, x, z, Ex*I_rieng quanh truc
+% thang dung], x tinh tu mep truoc ve sau, z huong len (phan day cung).
+% Side cap nam mot ben, huong vao trong hop dam; dai gia cuong dat giua mu + side cap
+% (giong gen_apdl_wing.py).
+x_skin = .005:.01:.995;
+x_side_cap_1 = x_spar_1 + d_cap_1/2 + d_side_cap_1/2;
+x_side_cap_2 = x_spar_2 - d_cap_2/2 - d_side_cap_2/2;
+sec_z = [Ex_cap_1_u*t_cap_1_u*d_cap_1, x_spar_1, z_cap_1_u, Ex_cap_1_u*t_cap_1_u*d_cap_1^3/12;
+    Ex_cap_1_l*t_cap_1_l*d_cap_1, x_spar_1, z_cap_1_l, Ex_cap_1_l*t_cap_1_l*d_cap_1^3/12;
+    Ex_cap_2_u*t_cap_2_u*d_cap_2, x_spar_2, z_cap_2_u, Ex_cap_2_u*t_cap_2_u*d_cap_2^3/12;
+    Ex_cap_2_l*t_cap_2_l*d_cap_2, x_spar_2, z_cap_2_l, Ex_cap_2_l*t_cap_2_l*d_cap_2^3/12;
+    Ex_spar_1*t_spar_1*h_spar_1, x_spar_1, spar_1_low + h_spar_1/2, Ex_spar_1*h_spar_1*t_spar_1^3/12;
+    Ex_spar_2*t_spar_2*h_spar_2, x_spar_2, spar_2_low + h_spar_2/2, Ex_spar_2*h_spar_2*t_spar_2^3/12;
+    Ex_side_cap_1*t_side_cap_1*d_side_cap_1, x_side_cap_1, z_side_cap_1_u, Ex_side_cap_1*t_side_cap_1*d_side_cap_1^3/12;
+    Ex_side_cap_1*t_side_cap_1*d_side_cap_1, x_side_cap_1, z_side_cap_1_l, Ex_side_cap_1*t_side_cap_1*d_side_cap_1^3/12;
+    Ex_side_cap_2*t_side_cap_2*d_side_cap_2, x_side_cap_2, z_side_cap_2_u, Ex_side_cap_2*t_side_cap_2*d_side_cap_2^3/12;
+    Ex_side_cap_2*t_side_cap_2*d_side_cap_2, x_side_cap_2, z_side_cap_2_l, Ex_side_cap_2*t_side_cap_2*d_side_cap_2^3/12;
+    Ex_skin*t_skin*[elem_length_u elem_length_l]', [x_skin x_skin]', [z_skin_u z_skin_l]', zeros(200,1)];
+if reinf == 1
+    x_reinf_1 = x_spar_1 + d_side_cap_1/2;
+    x_reinf_2 = x_spar_2 - d_side_cap_2/2;
+    EA_r = Ex_skin_reinf*t_skin_reinf; % dai gia cuong thay the vo thuong cung be rong
+    EA_s = Ex_skin*t_skin;
+    sec_z = [sec_z;
+        EA_r*d_reinf_1, x_reinf_1, z_reinf_u_1, EA_r*d_reinf_1^3/12;
+        EA_r*d_reinf_1, x_reinf_1, z_reinf_l_1, EA_r*d_reinf_1^3/12;
+        EA_r*d_reinf_2, x_reinf_2, z_reinf_u_2, EA_r*d_reinf_2^3/12;
+        EA_r*d_reinf_2, x_reinf_2, z_reinf_l_2, EA_r*d_reinf_2^3/12;
+        -EA_s*d_reinf_1, x_reinf_1, z_sk_u_1, -EA_s*d_reinf_1^3/12;
+        -EA_s*d_reinf_1, x_reinf_1, z_sk_l_1, -EA_s*d_reinf_1^3/12;
+        -EA_s*d_reinf_2, x_reinf_2, z_sk_u_2, -EA_s*d_reinf_2^3/12;
+        -EA_s*d_reinf_2, x_reinf_2, z_sk_l_2, -EA_s*d_reinf_2^3/12];
+end
+% Truc trung hoa theo phuong day cung (phan day cung tu mep truoc)
+x_N(ii) = sum(sec_z(:,1).*sec_z(:,2))/sum(sec_z(:,1));
+% Do cung uon ngang EI_z = sum(Ex*X^2*dA) va do cung uon xien EI_xz = sum(Ex*X*Z*dA)
+% quanh tam (x_N, z_E), voi X = -(x-x_N)*c huong ve phia truoc, Z = (z-z_E)*c
+EI_z(ii) = sum(sec_z(:,1).*(sec_z(:,2)-x_N(ii)).^2 + sec_z(:,4))*scale^4;
+EI_xz(ii) = -sum(sec_z(:,1).*(sec_z(:,2)-x_N(ii)).*(sec_z(:,3)-z_E(ii)))*scale^4;
+
 bending_curvature = -M_b(ii)/EI(ii); % bending curvature
 max_sigma_u_skin = bending_curvature*Ex_skin*max(up-z_E(ii)-t_skin/2)*scale; % maximum upper skin stress
 max_sigma_l_skin = bending_curvature*Ex_skin*min(lp-z_E(ii)+t_skin/2)*scale; % maximum lower stress
@@ -623,11 +691,11 @@ else
     sigma_cap_2_l = bending_curvature*Ex_cap_2_l*(z_airfoil_l_2-z_E(ii)+(t_skin_reinf+t_cap_2_l/2)/cos(slope_l_2))*scale; % stress at lower cap 2
 end
 
+sigma_u_side_cap_1 = bending_curvature*Ex_side_cap_1*(z_side_cap_1_u-z_E(ii))*scale;
+sigma_l_side_cap_1 = bending_curvature*Ex_side_cap_1*(z_side_cap_1_l-z_E(ii))*scale;
+sigma_u_side_cap_2 = bending_curvature*Ex_side_cap_2*(z_side_cap_2_u-z_E(ii))*scale;
+sigma_l_side_cap_2 = bending_curvature*Ex_side_cap_2*(z_side_cap_2_l-z_E(ii))*scale;
 
-sigma_u_side_cap_1 = bending_curvature*Ex_side_cap_1*(z_airfoil_u_1-z_E(ii))*scale; % stress at upper side_cap 1
-sigma_l_side_cap_1 = bending_curvature*Ex_side_cap_1*(z_airfoil_l_1-z_E(ii))*scale; % stress at lower side_cap 1
-sigma_u_side_cap_2 = bending_curvature*Ex_side_cap_2*(z_airfoil_u_2-z_E(ii))*scale; % stress at upper side_cap 2
-sigma_l_side_cap_2 = bending_curvature*Ex_side_cap_2*(z_airfoil_l_2-z_E(ii))*scale; % stress at lower side_cap 2
 M_b_spar_1(ii) = bending_curvature*(Ex_spar_1*I_spar_1+EI_cap_1_u/scale^4+EI_cap_1_l/scale^4+Ex_side_cap_1*(I_side_cap_1_u+I_side_cap_1_l))*scale^4;
 M_b_spar_2(ii) = bending_curvature*(Ex_spar_2*I_spar_2+EI_cap_2_u/scale^4+EI_cap_2_l/scale^4+Ex_side_cap_2*(I_side_cap_2_u+I_side_cap_2_l))*scale^4;
 M_b_skin(ii) = bending_curvature*(Ex_skin*I_skin)*scale^4;
@@ -640,10 +708,10 @@ end
 %% Additional load due to taper (Megson 23.6) Revised 14/10/2024
 x_spar_1_0(ii) = x_spar_1;
 x_spar_2_0(ii) = x_spar_2;
-spar_1_up_0(ii) = z_airfoil_u_1;
-spar_1_low_0(ii) = z_airfoil_l_1;
-spar_2_up_0(ii) = z_airfoil_u_2;
-spar_2_low_0(ii) = z_airfoil_l_2;
+spar_1_up_0(ii) = z_side_cap_1_u;
+spar_1_low_0(ii) = z_side_cap_1_l;
+spar_2_up_0(ii) = z_side_cap_2_u;
+spar_2_low_0(ii) = z_side_cap_2_l;
 if ii<length(y_coord)
     % bo /2 duoi mau
     dz_dy_1_u = (-spar_1_up_0(ii+1)*c_length(ii+1)+spar_1_up_0(ii)*c_length(ii))/dy;
@@ -823,6 +891,24 @@ Im(ii) = ((I_spar_1+I1_y)*sum(rho_spar_1.*t_layer_spar_1)/sum(t_layer_spar_1)+..
     sum(rho_rib.*t_layer_rib)/sum(t_layer_rib)*t_rib*(h_spar_1+h_spar_2)/2*(x_spar_2-x_spar_1)*(((h_spar_1+h_spar_2)^2/4+(x_spar_2-x_spar_1)^2)/12+d_rib_sq)*n_rib*scale^5;
 if reinf == 1
     Im(ii) = Im(ii)+(I_skin_reinf+I_skin_y_reinf)*sum(rho_skin_reinf.*t_layer_skin_reinf)/sum(t_layer_skin_reinf)*scale^4;
+end
+
+%% Toa do z cua trong tam (phan day cung), cung cac thanh phan khoi luong nhu m_airfoil
+% Bung dam: tru phan foam bi mu dam thay the o dau tren va dau duoi
+zc_airfoil(ii) = (sum(rho_skin.*t_layer_skin)*(sum(elem_length_u.*z_skin_u)+sum(elem_length_l.*z_skin_l)) +...
+    sum(rho_spar_1.*t_layer_spar_1)*h_spar_1*(spar_1_low+h_spar_1/2) -...
+    rho_core*core_thickness_spar_1*((spar_1_up-foam_1_up)*(spar_1_up+foam_1_up)/2+(foam_1_low-spar_1_low)*(foam_1_low+spar_1_low)/2) +...
+    sum(rho_spar_2.*t_layer_spar_2)*h_spar_2*(spar_2_low+h_spar_2/2) -...
+    rho_core*core_thickness_spar_2*((spar_2_up-foam_2_up)*(spar_2_up+foam_2_up)/2+(foam_2_low-spar_2_low)*(foam_2_low+spar_2_low)/2) +...
+    sum(rho_rib.*t_layer_rib)*(h_spar_1+h_spar_2)/2*(x_spar_2-x_spar_1)*scale*n_rib*z_rib +...
+    sum(rho_cap_1_u.*t_layer_cap_1_u)*d_cap_1*z_cap_1_u + sum(rho_cap_1_l.*t_layer_cap_1_l)*d_cap_1*z_cap_1_l +...
+    sum(rho_cap_2_u.*t_layer_cap_2_u)*d_cap_2*z_cap_2_u + sum(rho_cap_2_l.*t_layer_cap_2_l)*d_cap_2*z_cap_2_l +...
+    sum(rho_side_cap_1.*t_layer_side_cap_1)*d_side_cap_1*(z_side_cap_1_u+z_side_cap_1_l) +...
+    sum(rho_side_cap_2.*t_layer_side_cap_2)*d_side_cap_2*(z_side_cap_2_u+z_side_cap_2_l))*scale/m_airfoil(ii);
+if reinf == 1
+    zc_airfoil(ii) = zc_airfoil(ii)+(sum(rho_skin_reinf.*t_layer_skin_reinf)*...
+        (d_reinf_1*(z_reinf_u_1+z_reinf_l_1)+d_reinf_2*(z_reinf_u_2+z_reinf_l_2)) -...
+        sum(rho_skin.*t_layer_skin)*(d_reinf_1*(z_sk_u_1+z_sk_l_1)+d_reinf_2*(z_sk_u_2+z_sk_l_2)))*scale/m_airfoil(ii);
 end
 
 %% Moment quan tinh xoay cua mat cat quanh truc uon
