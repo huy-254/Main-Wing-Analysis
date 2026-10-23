@@ -32,7 +32,7 @@ GDof = 5*(numberElements+1); % [w theta phi u psi]
 
 % Gia tri trung binh tren phan tu
 avg = @(p) (p(2:end)+p(1:end-1))/2;
-EI_elem = avg(EI_full);
+EI_x_elem = avg(EI_full);
 GJ_elem = avg(GJ_full);
 m_elem = avg(m_full);
 Im_elem = avg(Im_full);
@@ -45,10 +45,10 @@ EI_xz_elem = avg(EI_xz_full);
 
 %stiffess matrix and mass matrix
 [stiffness,mass]=...
-    BernoulliBeam(GDof, numberElements, elementLength, EI_elem, m_elem, GJ_elem, Im_elem, e,...
+    BernoulliBeam(GDof, numberElements, elementLength, EI_x_elem, m_elem, GJ_elem, Im_elem, e,...
     EI_z_elem, EI_xz_elem, e_z);
 
-% [stiffness,mass] = TimoshenkoBeam(GDof, numberElements, elementLength, EI_elem, m_elem, ...
+% [stiffness,mass] = TimoshenkoBeam(GDof, numberElements, elementLength, EI_x_elem, m_elem, ...
 %     GJ_elem, Im_elem, e, EI_z_elem, EI_xz_elem, e_z, avg(kGA_full), avg(rhoI_full));
 
 %boundary conditions and solution

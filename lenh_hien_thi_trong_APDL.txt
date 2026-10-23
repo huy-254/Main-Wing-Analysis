@@ -1,0 +1,36 @@
+! Lenh isoparametric view cho bai toan
+/VUP,1,Z
+/VIEW,1,-1,-1,1
+/AUTO,1
+/REPLOT
+
+! Tat ve element khoi
+/ESHAPE,0
+/REPLOT
+
+! Bo duong, chi ve mat
+/GLINE,1,-1      ! khong ve canh phan tu
+/EDGE,1,1        ! chi ve cac canh gay khuc (vien ngoai, giao tuyen dam-vo)
+/REPLOT
+
+! Chi ve node
+NPLOT
+
+! Chi hien thi skin vo canh: TYPE 1
+ESEL,S,TYPE,,1,4
+EPLOT
+
+! Che ve mot nua
+NSEL,S,LOC,Y,0,8
+ESLN,S,1         ! chon cac phan tu co tat ca nut trong tap da chon
+EPLOT
+
+! Sau khi xem xong, nho chon lai all element cho hau xu ly
+ALLSEL
+
+! Lệnh để xem kết quả phân tích tĩnh
+/POST1
+FILE,file_static,rst
+SET,LAST
+PLNSOL,U,Z          ! do vong phuong z
+PLNSOL,U,SUM        ! chuyen vi tong

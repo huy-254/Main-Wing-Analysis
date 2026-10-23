@@ -12,7 +12,8 @@ function [stiffness,mass] = ...
 %   Voi kGA = Inf va rhoI = 0, ma tran trung khop BernoulliBeam.
 %   Ky hieu Phi = 12*EI/(kGA*L^2).
 %   Bien dang cat chi ke cho uon dung; uon ngang theo Euler-Bernoulli (ham dang
-%   Hermite). So hang EIxz dung w'' Hermite nen la gan dung khi kGA huu han.
+%   Hermite). So hang uon xien int(EIxz*theta'*u''): theta' lay tu ham dang
+%   Timoshenko (khong phai w'' Hermite, vi theta khong bang w' khi co bien dang cat).
 
 if nargin < 12 || isempty(kGA)
     kGA = Inf(size(EI));
@@ -75,7 +76,13 @@ for j = 1:numberElements
                -12  -6*L   12   -6*L;
                6*L  2*L^2  -6*L 4*L^2];
     k3 = EIz(j)*H;
-    k4 = EIxz(j)*H;
+    % theta' = (N_herm'' + p*[0 -1 0 1]/L)/(1+p) theo [w1 theta1 w2 theta2]
+    % => int(theta'^T*u'') = (H + p*G0)/(1+p), G0 chi lien ket 2 goc xoay
+    G0 = 1/L*[0  0  0  0;
+              0  1  0 -1;
+              0  0  0  0;
+              0 -1  0  1];
+    k4 = EIxz(j)/(1+p)*(H + p*G0);
     m4 = rhoA(j)*L/420*[156    22*L    54     -13*L;
                         22*L   4*L^2   13*L   -3*L^2;
                         54     13*L    156    -22*L;

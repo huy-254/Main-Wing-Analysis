@@ -103669,10 +103669,27 @@ FINISH
 /SOLU
 ANTYPE,STATIC
 IRLF,-1                 ! in "PRECISE MASS SUMMARY" va khoi luong theo TYPE trong output
+
+! Ngam tat ca tai y=+-0.26m
 NSEL,S,LOC,Y,0.25999,0.26001
 NSEL,A,LOC,Y,-0.26001,-0.25999
 D,ALL,ALL
 NSEL,ALL
+
+!NSEL,S,LOC,Y,0.25999,0.26001
+!NSEL,A,LOC,Y,-0.26001,-0.25999
+!CM,FIXSTN,NODE                 ! moi nut tai 2 tram ngam
+!CMSEL,S,FIXSTN
+!NSEL,R,LOC,X,0.622900,0.623100 ! bung dam truoc (x = 0.623 m)
+!CM,FIXF,NODE
+!CMSEL,S,FIXSTN
+!NSEL,R,LOC,X,0.231400,0.231600 ! bung dam sau (x = 0.2315 m)
+!CM,FIXR,NODE
+!CMSEL,S,FIXF
+!CMSEL,A,FIXR
+!D,ALL,ALL
+!NSEL,ALL
+
 F,40415,FZ,5.555556
 F,46274,FZ,5.555556
 F,46275,FZ,5.555556
@@ -103692,10 +103709,14 @@ F,46286,FZ,5.555556
 F,46287,FZ,5.555556
 F,40365,FZ,5.555556
 SOLVE
+*GET,MTOT,ELEM,0,MTOT,X  ! tong khoi luong mo hinh (can IRLF,-1 truoc SOLVE)
 FINISH
+/COPY,file,rst,,file_static,rst			! luu rieng ket qua tinh truoc khi phan tich mode
 /POST1
 SET,LAST
 *CFOPEN,wing_CW_results,txt
+*VWRITE,MTOT
+('Tong khoi luong mo hinh canh: ',F10.3,' kg')
 *VWRITE
 ('Do vong UZ trung binh tai bung hai dam, luc 100 N o dau mut y = +8 m')
 UZS=0
@@ -103910,12 +103931,29 @@ FINISH
 /SOLU
 ANTYPE,MODAL,NEW
 FDELE,ALL,ALL
+
+! Ngam tat ca tai y=+-0.26m
 NSEL,S,LOC,Y,0.25999,0.26001
 NSEL,A,LOC,Y,-0.26001,-0.25999
 D,ALL,ALL
 NSEL,ALL
-MODOPT,LANB,12
-MXPAND,12
+
+!NSEL,S,LOC,Y,0.25999,0.26001
+!NSEL,A,LOC,Y,-0.26001,-0.25999
+!CM,FIXSTN,NODE                 ! moi nut tai 2 tram ngam
+!CMSEL,S,FIXSTN
+!NSEL,R,LOC,X,0.622900,0.623100 ! bung dam truoc (x = 0.623 m)
+!CM,FIXF,NODE
+!CMSEL,S,FIXSTN
+!NSEL,R,LOC,X,0.231400,0.231600 ! bung dam sau (x = 0.2315 m)
+!CM,FIXR,NODE
+!CMSEL,S,FIXF
+!CMSEL,A,FIXR
+!D,ALL,ALL
+!NSEL,ALL
+
+MODOPT,LANB,20
+MXPAND,20
 SOLVE
 FINISH
 /POST1

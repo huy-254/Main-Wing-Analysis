@@ -170,16 +170,21 @@ end
 
 
 % FEM analysis
-modeNumber_f = 8;
+modeNumber_f = 20;
 coupled_beam
 
 % In tan so, kieu doi xung va dang dao dong chiem uu the cua tung mode
-fprintf('Tan so rieng (ty le dong nang uon dung / xoan / uon ngang):\n');
+% Ba cot cuoi: ty le dong nang cua tung nhom bac tu do
+tbl_head = sprintf(' %4s | %11s | %-13s | %-13s | %9s | %9s | %9s ',...
+    'Mode', 'Tan so (Hz)', 'Doi xung', 'Dang dao dong', 'Uon dung', 'Xoan', 'Uon ngang');
+tbl_line = regexprep(tbl_head, '[^|]', '-');
+tbl_line(tbl_line == '|') = '+';
+fprintf('Tan so rieng:\n%s\n%s\n', tbl_head, tbl_line);
 for kk = 1:modeNumber_f
-    fprintf('  Mode %d: %8.3f Hz  %-14s %-10s (%3.0f%% / %3.0f%% / %3.0f%%)\n', kk, Df(kk),...
+    fprintf(' %4d | %11.3f | %-13s | %-13s | %8.0f%% | %8.0f%% | %8.0f%% \n', kk, Df(kk),...
         mode_type(kk), mode_kind(kk), 100*mode_energy(:,kk));
 end
-fprintf('\n');
+fprintf('%s\n\n', tbl_line);
 fprintf('Tong khoi luong canh: %.3f kg\n', sum(m_full*dy));
 
 % Ve mode shape
@@ -249,8 +254,8 @@ for kk = 1:modeNumber_f
     cb.Label.String = '|u| (m)';
 
     xlabel('x (m)'); ylabel('y (m)'); zlabel('z (m)')
-    title(['Mode shape so ', num2str(kk), ', tan so ', num2str(Df(kk)), 'Hz (',...
-        char(mode_kind(kk)), ', ', char(mode_type(kk)), ')'], 'FontSize', 18)
+    title({['Mode shape so ', num2str(kk), ', tan so ', num2str(Df(kk), '%.3f'), ' Hz'],...
+        ['(', char(mode_kind(kk)), ', ', char(mode_type(kk)), ')']}, 'FontSize', 18)
     axis equal tight
     axis off
     view(-55,30) % nhin tu phia sau (-x) ra phia truoc

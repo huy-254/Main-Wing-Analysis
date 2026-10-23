@@ -162,6 +162,9 @@ NC = 2*M + 1           # so nut tren duong bao moi tram (vong kin)
 
 nodes = {}             # id -> (x,y,z)
 def nid_c(j, i): return j*NC + i + 1                     # nut duong bao
+# j: chi so mat cat doc sai canh
+# i: chỉ số node trên đường bao mặt cắt
+# NC: số node trên đường bao của một mặt cắt
 NBASE_W = NS*NC
 def nid_w(j, w, k):                                       # nut trong bung dam, k = 1..NL-1
     return NBASE_W + (j*2 + w)*(NL-1) + k
@@ -353,10 +356,13 @@ w('NSEL,ALL')
 yt, tipn = station_web_nodes(Y_TIP)
 for n in tipn: w(f'F,{n},FZ,{P_TIP/len(tipn):.6f}')
 w('SOLVE')
+w('*GET,MTOT,ELEM,0,MTOT,X  ! tong khoi luong mo hinh (can IRLF,-1 truoc SOLVE)')
 w('FINISH')
 w('/POST1')
 w('SET,LAST')
 w('*CFOPEN,wing_CW_results,txt')
+w('*VWRITE,MTOT')
+w("('Tong khoi luong mo hinh canh: ',F10.3,' kg')")
 w("*VWRITE")
 w("('Do vong UZ trung binh tai bung hai dam, luc 100 N o dau mut y = +8 m')")
 for yy in [1, 2, 4, 6, 8]:
