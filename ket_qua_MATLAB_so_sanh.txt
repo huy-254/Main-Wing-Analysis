@@ -1,0 +1,37 @@
+Ket qua mo hinh dam MATLAB (main_CW + coupled_beam, Bernoulli), 25-Nov-2026 06:42:48
+Tong khoi luong: 115.991 kg
+  vo           53.433 kg
+  mu_dam       39.741 kg
+  side_cap      3.102 kg
+  bung_dam     16.508 kg
+  rib           3.208 kg
+Tan so rieng (Hz)
+  Mode  1  f =    3.8209 Hz  doi xung       uon dung    [uon dung 100%, xoan   0%, uon ngang   0%]
+  Mode  2  f =    3.8209 Hz  phan doi xung  uon dung    [uon dung 100%, xoan   0%, uon ngang   0%]
+  Mode  3  f =   12.0300 Hz  doi xung       uon ngang   [uon dung   0%, xoan   0%, uon ngang 100%]
+  Mode  4  f =   12.0300 Hz  phan doi xung  uon ngang   [uon dung   0%, xoan   0%, uon ngang 100%]
+  Mode  5  f =   17.4608 Hz  doi xung       uon dung    [uon dung 100%, xoan   0%, uon ngang   0%]
+  Mode  6  f =   17.4608 Hz  phan doi xung  uon dung    [uon dung 100%, xoan   0%, uon ngang   0%]
+  Mode  7  f =   42.7053 Hz  doi xung       uon dung    [uon dung 100%, xoan   0%, uon ngang   0%]
+  Mode  8  f =   42.7053 Hz  phan doi xung  uon dung    [uon dung 100%, xoan   0%, uon ngang   0%]
+  Mode  9  f =   54.7173 Hz  doi xung       uon ngang   [uon dung   0%, xoan   0%, uon ngang 100%]
+  Mode 10  f =   54.7173 Hz  phan doi xung  uon ngang   [uon dung   0%, xoan   0%, uon ngang 100%]
+  Mode 11  f =   71.4347 Hz  doi xung       xoan        [uon dung  19%, xoan  81%, uon ngang   0%]
+  Mode 12  f =   71.4347 Hz  phan doi xung  xoan        [uon dung  19%, xoan  81%, uon ngang   0%]
+  Mode 13  f =   81.1030 Hz  doi xung       uon dung    [uon dung  94%, xoan   6%, uon ngang   0%]
+  Mode 14  f =   81.1030 Hz  phan doi xung  uon dung    [uon dung  94%, xoan   6%, uon ngang   0%]
+  Mode 15  f =  129.5163 Hz  doi xung       uon dung    [uon dung  95%, xoan   5%, uon ngang   0%]
+  Mode 16  f =  129.5163 Hz  phan doi xung  uon dung    [uon dung  95%, xoan   5%, uon ngang   0%]
+  Mode 17  f =  133.0930 Hz  doi xung       uon ngang   [uon dung   0%, xoan   0%, uon ngang 100%]
+  Mode 18  f =  133.0930 Hz  phan doi xung  uon ngang   [uon dung   0%, xoan   0%, uon ngang 100%]
+  Mode 19  f =  153.4685 Hz  doi xung       xoan        [uon dung  21%, xoan  79%, uon ngang   0%]
+  Mode 20  f =  153.4685 Hz  phan doi xung  xoan        [uon dung  21%, xoan  79%, uon ngang   0%]
+Do vong w tai truc dan hoi (mm): y | tai thiet ke | 100 N dau mut
+  y =  1.00      15.290       0.151
+  y =  2.00      77.589       0.810
+  y =  3.00     200.192       2.274
+  y =  4.00     380.222       4.716
+  y =  5.00     600.857       8.143
+  y =  6.00     849.699      12.512
+  y =  7.00    1115.011      17.707
+  y =  8.00    1385.781      23.457

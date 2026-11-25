@@ -3,3 +3,9 @@
 
 # Ban sao lam viec
 main_CW copy.m
+
+# File bien dich cua Python
+__pycache__/
+
+# File tam khi Word dang mo
+~$*.docx

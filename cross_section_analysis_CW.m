@@ -322,8 +322,8 @@ h_foam_2 = foam_2_up-foam_2_low; % aft spar foam height
 n_rib = 1/(rib_spacing*scale);
 
 m_airfoil(ii) = (sum(rho_skin.*t_layer_skin)*(sum(elem_length_u)+sum(elem_length_l)) +... 
-    sum(rho_spar_1.*t_layer_spar_1)*h_spar_1 - rho_core*core_thickness_spar_1*(h_spar_1-h_foam_1) +...
-    sum(rho_spar_2.*t_layer_spar_2)*h_spar_2 - rho_core*core_thickness_spar_2*(h_spar_2-h_foam_2) +...
+    sum(rho_spar_1.*t_layer_spar_1)*h_foam_1 +... % bung dam chi nam giua hai mu dam (mu rong bang bung dam)
+    sum(rho_spar_2.*t_layer_spar_2)*h_foam_2 +...
     sum(rho_rib.*t_layer_rib)*(h_spar_1+h_spar_2)/2*(x_spar_2-x_spar_1)*scale*n_rib +...
     sum(rho_cap_1_u.*t_layer_cap_1_u)*d_cap_1+...
     sum(rho_cap_1_l.*t_layer_cap_1_l)*d_cap_1+...
@@ -340,9 +340,9 @@ end
 xc_skin = (sum(rho_skin.*t_layer_skin)*...
     (sum(elem_length_u.*(.005:.01:.995))+sum(elem_length_l.*(.005:.01:.995))))*scale/m_airfoil(ii); 
     
-xc_spar_1 = (sum(rho_spar_1.*t_layer_spar_1)*h_spar_1 - rho_core*core_thickness_spar_1*(h_spar_1-h_foam_1))*x_spar_1*scale/m_airfoil(ii); 
+xc_spar_1 = sum(rho_spar_1.*t_layer_spar_1)*h_foam_1*x_spar_1*scale/m_airfoil(ii);
     
-xc_spar_2 = (sum(rho_spar_2.*t_layer_spar_2)*h_spar_2 - rho_core*core_thickness_spar_2*(h_spar_2-h_foam_2))*x_spar_2*scale/m_airfoil(ii); 
+xc_spar_2 = sum(rho_spar_2.*t_layer_spar_2)*h_foam_2*x_spar_2*scale/m_airfoil(ii);
     
 xc_rib = (sum(rho_rib.*t_layer_rib)/sum(t_layer_rib)*t_rib*(h_spar_1+h_spar_2)/2*(x_spar_2-x_spar_1)*(x_spar_1+x_spar_2)/2*scale*n_rib)*scale^2/m_airfoil(ii); 
     
@@ -490,14 +490,14 @@ z_side_cap_2_l = spar_2_low + t_side_cap_2/2/cos(slope_l_2);
 
 EAz = (z_cap_1_u*Ex_cap_1_u*t_cap_1_u + z_cap_1_l*Ex_cap_1_l*t_cap_1_l)*d_cap_1 + ...
       (z_cap_2_u*Ex_cap_2_u*t_cap_2_u + z_cap_2_l*Ex_cap_2_l*t_cap_2_l)*d_cap_2 + ...
-      Ex_spar_1*t_spar_1*h_spar_1*(spar_1_low + h_spar_1/2) + ...
-      Ex_spar_2*t_spar_2*h_spar_2*(spar_2_low + h_spar_2/2) + ...
+      Ex_spar_1*t_spar_1*h_foam_1*(foam_1_low + h_foam_1/2) + ...
+      Ex_spar_2*t_spar_2*h_foam_2*(foam_2_low + h_foam_2/2) + ...
       Ex_side_cap_1*t_side_cap_1*d_side_cap_1*(z_side_cap_1_u + z_side_cap_1_l) + ...
       Ex_side_cap_2*t_side_cap_2*d_side_cap_2*(z_side_cap_2_u + z_side_cap_2_l) + ...
       Ex_skin*t_skin*(sum(elem_length_u.*z_skin_u) + sum(elem_length_l.*z_skin_l));
 EAs = (Ex_cap_1_u*t_cap_1_u + Ex_cap_1_l*t_cap_1_l)*d_cap_1 + ...
       (Ex_cap_2_u*t_cap_2_u + Ex_cap_2_l*t_cap_2_l)*d_cap_2 + ...
-      Ex_spar_1*t_spar_1*h_spar_1 + Ex_spar_2*t_spar_2*h_spar_2 + ...
+      Ex_spar_1*t_spar_1*h_foam_1 + Ex_spar_2*t_spar_2*h_foam_2 + ...
       2*Ex_side_cap_1*t_side_cap_1*d_side_cap_1 + 2*Ex_side_cap_2*t_side_cap_2*d_side_cap_2 + ...
       Ex_skin*t_skin*(sum(elem_length_u) + sum(elem_length_l));
 if reinf == 1
@@ -530,12 +530,13 @@ I_cap_2_l = t_cap_2_l*d_cap_2*h2_l^2;
 
 
 %% Tinh moment quan tinh
+% Bung dam chi tinh doan giua hai mu dam (mu dam rong bang bung dam)
 if reinf == 1
-    I_spar_1 = t_spar_1*h_spar_1^3/12 + t_spar_1*h_spar_1*(spar_1_up - h_spar_1/2 - z_E(ii))^2; % area moment of inertia Front spar
-    I_spar_2 = t_spar_2*h_spar_2^3/12 + t_spar_2*h_spar_2*(spar_2_up - h_spar_2/2 - z_E(ii))^2; % area moment of inertia Aft spar
-else 
-    I_spar_1 = t_spar_1*h_spar_1^3/12 + t_spar_1*h_spar_1*(spar_1_up - h_spar_1/2 - z_E(ii))^2; % area moment of inertia Front spar
-    I_spar_2 = t_spar_2*h_spar_2^3/12 + t_spar_2*h_spar_2*(spar_2_up - h_spar_2/2 - z_E(ii))^2; % area moment of inertia Aft spar   
+    I_spar_1 = t_spar_1*h_foam_1^3/12 + t_spar_1*h_foam_1*(foam_1_up - h_foam_1/2 - z_E(ii))^2; % area moment of inertia Front spar
+    I_spar_2 = t_spar_2*h_foam_2^3/12 + t_spar_2*h_foam_2*(foam_2_up - h_foam_2/2 - z_E(ii))^2; % area moment of inertia Aft spar
+else
+    I_spar_1 = t_spar_1*h_foam_1^3/12 + t_spar_1*h_foam_1*(foam_1_up - h_foam_1/2 - z_E(ii))^2; % area moment of inertia Front spar
+    I_spar_2 = t_spar_2*h_foam_2^3/12 + t_spar_2*h_foam_2*(foam_2_up - h_foam_2/2 - z_E(ii))^2; % area moment of inertia Aft spar
 end
 
 % Skin
@@ -614,7 +615,7 @@ end
 
 % Do cung keo-nen doc truc: tong Ei*Si cua cac chi tiet chiu luc doc truc
 % (dien tich lay giong phan tinh khoi luong, khong ke suon)
-EA(ii) = (Ex_spar_1*t_spar_1*h_spar_1+Ex_spar_2*t_spar_2*h_spar_2+...
+EA(ii) = (Ex_spar_1*t_spar_1*h_foam_1+Ex_spar_2*t_spar_2*h_foam_2+...
     Ex_cap_1_u*t_cap_1_u*d_cap_1+Ex_cap_1_l*t_cap_1_l*d_cap_1+...
     Ex_cap_2_u*t_cap_2_u*d_cap_2+Ex_cap_2_l*t_cap_2_l*d_cap_2+...
     Ex_side_cap_1*t_side_cap_1*d_side_cap_1*2+Ex_side_cap_2*t_side_cap_2*d_side_cap_2*2+...
@@ -635,8 +636,8 @@ sec_z = [Ex_cap_1_u*t_cap_1_u*d_cap_1, x_spar_1, z_cap_1_u, Ex_cap_1_u*t_cap_1_u
     Ex_cap_1_l*t_cap_1_l*d_cap_1, x_spar_1, z_cap_1_l, Ex_cap_1_l*t_cap_1_l*d_cap_1^3/12;
     Ex_cap_2_u*t_cap_2_u*d_cap_2, x_spar_2, z_cap_2_u, Ex_cap_2_u*t_cap_2_u*d_cap_2^3/12;
     Ex_cap_2_l*t_cap_2_l*d_cap_2, x_spar_2, z_cap_2_l, Ex_cap_2_l*t_cap_2_l*d_cap_2^3/12;
-    Ex_spar_1*t_spar_1*h_spar_1, x_spar_1, spar_1_low + h_spar_1/2, Ex_spar_1*h_spar_1*t_spar_1^3/12;
-    Ex_spar_2*t_spar_2*h_spar_2, x_spar_2, spar_2_low + h_spar_2/2, Ex_spar_2*h_spar_2*t_spar_2^3/12;
+    Ex_spar_1*t_spar_1*h_foam_1, x_spar_1, foam_1_low + h_foam_1/2, Ex_spar_1*h_foam_1*t_spar_1^3/12;
+    Ex_spar_2*t_spar_2*h_foam_2, x_spar_2, foam_2_low + h_foam_2/2, Ex_spar_2*h_foam_2*t_spar_2^3/12;
     Ex_side_cap_1*t_side_cap_1*d_side_cap_1, x_side_cap_1, z_side_cap_1_u, Ex_side_cap_1*t_side_cap_1*d_side_cap_1^3/12;
     Ex_side_cap_1*t_side_cap_1*d_side_cap_1, x_side_cap_1, z_side_cap_1_l, Ex_side_cap_1*t_side_cap_1*d_side_cap_1^3/12;
     Ex_side_cap_2*t_side_cap_2*d_side_cap_2, x_side_cap_2, z_side_cap_2_u, Ex_side_cap_2*t_side_cap_2*d_side_cap_2^3/12;
@@ -839,9 +840,20 @@ delta_2_3 = h_q_2/G_spar_2/t_spar_2;
 % Shear center 
 x_E(ii) = shear_center(q_b1,q_b2,A1,A2,A3,delta_1,delta_2,delta_3,delta_1_2,delta_2_3,x_spar_1,x_spar_2,h_spar_1,h_spar_2);
 
-% Torsion moment
-M_t(ii) = -(sum(0.8*F0.*(x_spar_1-x_E(ii))*scale+0.2*F0.*(x_spar_2-x_E(ii))*scale) -...
-    sum(n_load*9.81*.5*(m_airfoil(ii+1:end)+m_airfoil(ii:end-1)).*(0.5*(xc_airfoil(ii+1:end)+xc_airfoil(ii:end-1))-x_E(ii))*scale)*dy);
+% Torsion moment: canh tay don tinh bang toa do x that (m) cua tung luc,
+% vi day cung va mep truoc tai vi tri luc khac voi tai mat cat ii
+x_E_abs = x_LE(ii) - x_E(ii)*scale;                 % toa do x cua tam cat tai mat cat ii
+
+c_point = interp1(y_coord, c_length, y_point);      % day cung tai vi tri cac luc khi dong
+x_LE_point = interp1(y_coord, x_LE, y_point);       % mep truoc tai vi tri cac luc khi dong
+arm_spar_1 = x_E_abs - (x_LE_point - x_spar_1*c_point);   % > 0: luc nam sau tam cat
+arm_spar_2 = x_E_abs - (x_LE_point - x_spar_2*c_point);
+
+x_mass = x_LE(ii:end)' - xc_airfoil(ii:end).*c_length(ii:end)';   % toa do x trong tam khoi luong cac mat cat
+arm_mass = x_E_abs - 0.5*(x_mass(2:end) + x_mass(1:end-1));       % canh tay don cua tung doan dy
+
+M_t(ii) = -(sum(0.8*F0.*arm_spar_1 + 0.2*F0.*arm_spar_2) -...
+    sum(n_load*9.81*.5*(m_airfoil(ii+1:end)+m_airfoil(ii:end-1)).*arm_mass)*dy);
 if ii == round(fix_loc/dy + 1)
     M_react = -M_t(ii);
 end
@@ -883,9 +895,9 @@ shear_spar_2 = (q_b2+q2-q3)/(t_spar_2*scale); % shear stress on aft spar
 
 %% Im calculation
 % Front spar
-I1_y = t_spar_1*h_spar_1*(x_E(ii)-x_spar_1)^2; % area moment of inertia
+I1_y = t_spar_1*h_foam_1*(x_E(ii)-x_spar_1)^2; % area moment of inertia
 % Aft spar
-I2_y = t_spar_2*h_spar_2*(x_E(ii)-x_spar_2)^2; % area moment of inertia
+I2_y = t_spar_2*h_foam_2*(x_E(ii)-x_spar_2)^2; % area moment of inertia
 % caps
 I_cap_1_u_y = t_cap_1_u*d_cap_1*(x_E(ii)-x_spar_1)^2;
 I_cap_1_l_y = t_cap_1_l*d_cap_1*(x_E(ii)-x_spar_1)^2;
@@ -927,12 +939,10 @@ if reinf == 1
 end
 
 %% Toa do z cua trong tam (phan day cung), cung cac thanh phan khoi luong nhu m_airfoil
-% Bung dam: tru phan foam bi mu dam thay the o dau tren va dau duoi
+% Bung dam: chi doan giua hai mu dam
 zc_airfoil(ii) = (sum(rho_skin.*t_layer_skin)*(sum(elem_length_u.*z_skin_u)+sum(elem_length_l.*z_skin_l)) +...
-    sum(rho_spar_1.*t_layer_spar_1)*h_spar_1*(spar_1_low+h_spar_1/2) -...
-    rho_core*core_thickness_spar_1*((spar_1_up-foam_1_up)*(spar_1_up+foam_1_up)/2+(foam_1_low-spar_1_low)*(foam_1_low+spar_1_low)/2) +...
-    sum(rho_spar_2.*t_layer_spar_2)*h_spar_2*(spar_2_low+h_spar_2/2) -...
-    rho_core*core_thickness_spar_2*((spar_2_up-foam_2_up)*(spar_2_up+foam_2_up)/2+(foam_2_low-spar_2_low)*(foam_2_low+spar_2_low)/2) +...
+    sum(rho_spar_1.*t_layer_spar_1)*h_foam_1*(foam_1_low+h_foam_1/2) +...
+    sum(rho_spar_2.*t_layer_spar_2)*h_foam_2*(foam_2_low+h_foam_2/2) +...
     sum(rho_rib.*t_layer_rib)*(h_spar_1+h_spar_2)/2*(x_spar_2-x_spar_1)*scale*n_rib*z_rib +...
     sum(rho_cap_1_u.*t_layer_cap_1_u)*d_cap_1*z_cap_1_u + sum(rho_cap_1_l.*t_layer_cap_1_l)*d_cap_1*z_cap_1_l +...
     sum(rho_cap_2_u.*t_layer_cap_2_u)*d_cap_2*z_cap_2_u + sum(rho_cap_2_l.*t_layer_cap_2_l)*d_cap_2*z_cap_2_l +...
